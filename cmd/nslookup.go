@@ -18,13 +18,9 @@ var ns string
 // nsCmd represents the ns command
 var nsCmd = &cobra.Command{
 	Use:   "ns",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Gathers DNS records for a domain name",
+	Long: `A flexible tool for interrogating name servers. Also
+can gather/return/configure local DNS services.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		if ns == "" {
 			nameservers := viper.GetStringSlice("nameservers")
@@ -38,6 +34,33 @@ to quickly create a Cobra application.`,
 			}
 			ns = addr[0]
 		}
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		path, err := dns.GetPath()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Gathering local information from %s\n", path)
+
+		ns, err := dns.GetLocalNS()
+		if err != nil {
+			return err
+		}
+		printInfo("local name servers:", ns)
+
+		sd, err := dns.GetLocalSearchDomains()
+		if err != nil {
+			return err
+		}
+		printInfo("local search domains:", sd)
+
+		opt, err := dns.GetLocalOptions()
+		if err != nil {
+			return err
+		}
+		printInfo("local options:", opt)
+
 		return nil
 	},
 }
@@ -105,7 +128,7 @@ Response will follow this format:
   - The Primary Name Server (MNAME)
   - The Responsible Person (RNAME)`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// If endpoint isn't given, just send msg to currrent NS
+		// If endpoint isn't given, just send msg to current NS
 		if len(args) < 1 {
 			args = append(args, ns)
 		}
@@ -128,4 +151,13 @@ func init() {
 	nsCmd.AddCommand(soaCmd)
 
 	nsCmd.PersistentFlags().StringVar(&ns, "nameserver", "", "name server to use for DNS resolution")
+}
+
+func printInfo(header string, retval []string) {
+	if len(retval) > 0 {
+		fmt.Println(header)
+		for _, r := range retval {
+			fmt.Printf("  -%s\n", r)
+		}
+	}
 }
