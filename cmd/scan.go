@@ -34,7 +34,7 @@ host and exploit vulnerabilities.`,
 		log.Printf("Port Scanning %d range on %s", r, t)
 
 		start := time.Now()
-		results, done := port.ScanWithRoutines(ctx, t, r)
+		results, done := port.PortScan(ctx, t, r)
 		for {
 			select {
 			case r := <-results:

@@ -28,7 +28,7 @@ func IsOpen(state string) bool {
 	return false
 }
 
-func ScanWithRoutines(ctx context.Context, hostname string, portrange int) (chan ScanResult, chan struct{}) {
+func PortScan(ctx context.Context, hostname string, portrange int) (chan ScanResult, chan struct{}) {
 	r := make(chan ScanResult)
 	done := make(chan struct{})
 
