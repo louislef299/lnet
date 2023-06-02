@@ -86,15 +86,24 @@ to quickly create a Cobra application.`,
 
 // soaCmd represents the soa command
 var soaCmd = &cobra.Command{
-	Use:     "soa",
-	Aliases: []string{"sao"},
-	Short:   "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "soa",
+	Short: "Retrieve a start of authority record from requested servers",
+	Long: `Returns a SOA record containing administrative information about 
+the zone, especially regarding zone transfers. This can include 
+the email address of the administrator, when the domain was last
+updated, and how long the server should wait between refreshes.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Response will follow this format:
+
+[Owner name] [SOA record TTL] SOA [MNAME] [RNAME] (
+	[Serial number]
+	[Refresh time in seconds]
+	[Retry time in seconds]
+	[Expire time in seconds]
+	[Minimum TTL (negative response cache TTL)]
+)
+  - The Primary Name Server (MNAME)
+  - The Responsible Person (RNAME)`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// If endpoint isn't given, just send msg to currrent NS
 		if len(args) < 1 {
@@ -103,7 +112,7 @@ to quickly create a Cobra application.`,
 
 		resp, err := dns.GetSoa(ns, args)
 		if err != nil {
-			log.Fatal("could not get soa response:", err)
+			log.Fatal("could not get soa response: ", err)
 		}
 
 		for _, r := range resp {
