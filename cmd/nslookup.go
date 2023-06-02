@@ -8,7 +8,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/miekg/dns"
+	"github.com/louislef299/lnet/pkg/dns"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -26,9 +26,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		if nsFlag, err := cmd.Flags().GetString("nameserver"); err != nil {
-			return err
-		} else if nsFlag == "" {
+		if ns == "" {
 			nameservers := viper.GetStringSlice("nameservers")
 			ns = nameservers[0]
 		}
@@ -98,24 +96,18 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// If endpoint isn't given, just send msg to currrent NS
 		if len(args) < 1 {
 			args = append(args, ns)
 		}
 
-		c := new(dns.Client)
-		msg := new(dns.Msg)
-		msg.SetEdns0(4096, true)
-		fmt.Println("sending question using name server", ns)
+		resp, err := dns.GetSoa(ns, args)
+		if err != nil {
+			log.Fatal("could not get soa response:", err)
+		}
 
-		for _, e := range args {
-			msg.SetQuestion(dns.Fqdn(e), dns.TypeSOA)
-			resp, _, err := c.Exchange(msg, ns+":53")
-			if err != nil {
-				log.Printf("Error: %s\n", err)
-				return nil
-			}
-
-			fmt.Printf("SOA response for %s:\n%v", e, resp)
+		for _, r := range resp {
+			fmt.Printf("SOA response for %s: %v\n", r.Server, r.Msg)
 		}
 		return nil
 	},
@@ -126,5 +118,5 @@ func init() {
 	nsCmd.AddCommand(lookupCmd)
 	nsCmd.AddCommand(soaCmd)
 
-	nsCmd.PersistentFlags().String("nameserver", "", "name server to use for DNS resolution")
+	nsCmd.PersistentFlags().StringVar(&ns, "nameserver", "", "name server to use for DNS resolution")
 }

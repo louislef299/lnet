@@ -22,26 +22,26 @@ var rootCmd = &cobra.Command{
 	Use:   "lnet",
 	Short: "A network tool for the modern system administrator",
 	Long: `A network tool for the modern system administrator
-                  _______ ______
-                  |     / |    /
-       O          |    /  |   /
-                  |   /   |  /
-    o  O 0         \  \   \  \
-    o               \  \   \  \
-       o            /  /   /  /
-        o     /\_  /\\\   /  /
-         O  /    /    /     /
- ..       /    /    /\=    /
-.  ))))))) = /====/    \
-. (((((((( /    /\=  _ }
-. |-----_|_+( /   \}
-. \_<\_//|  \  \ }
- ...=Q=  |==)\  \
-   \----/     ) )
-             / /
-            /=/ 
-          \|/
-          o}`,
+                    _______ ______
+                    |     / |    /
+         O          |    /  |   /
+                    |   /   |  /
+      o  O 0         \  \   \  \
+      o               \  \   \  \
+         o            /  /   /  /
+          o     /\_  /\\\   /  /
+           O  /    /    /     /
+   ..       /    /    /\=    /
+  .  ))))))) = /====/    \
+  . (((((((( /    /\=  _ }
+  . |-----_|_+( /   \}
+  . \_<\_//|  \  \ }
+   ...=Q=  |==)\  \
+     \----/     ) )
+               / /
+              /=/ 
+            \|/
+            o}`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 		return nil
