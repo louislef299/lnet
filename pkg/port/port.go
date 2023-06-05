@@ -2,6 +2,7 @@ package port
 
 import (
 	"context"
+	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -22,10 +23,7 @@ type ScanResult struct {
 }
 
 func IsOpen(state string) bool {
-	if strings.Compare(state, open) == 0 {
-		return true
-	}
-	return false
+	return strings.Compare(state, open) == 0
 }
 
 func PortScan(ctx context.Context, hostname string, portrange int) (chan ScanResult, chan struct{}) {
@@ -53,7 +51,10 @@ func PortScan(ctx context.Context, hostname string, portrange int) (chan ScanRes
 	}
 
 	go func() {
-		g.Wait()
+		err := g.Wait()
+		if err != nil {
+			log.Fatal("failed to wait:", err)
+		}
 		close(r)
 		done <- struct{}{}
 	}()

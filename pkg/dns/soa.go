@@ -23,7 +23,6 @@ type SoaResponse struct {
 }
 
 func (s *SoaResponse) String() string {
-	s.ConvertMsgToSoa()
 	return fmt.Sprintf("ANSWER SECTION:\n  Owner Name: %s\n  TTL: %d\n  Primary NS: %s\n  Responsible Person: %s\n  Serial Number: %d\n  Refresh time in seconds: %d\n  Retry time in seconds: %d\n  Expire time in seconds: %d\n  Minimum TTL: %d",
 		s.OwnerName, s.TTL, s.MName, s.RName, s.SerialNumber, s.RefreshTime, s.RetryTime, s.ExpireTime, s.MinimumTTL)
 }
@@ -44,6 +43,10 @@ func GetSoa(nameserver string, servers []string) ([]*SoaResponse, error) {
 
 		s := &SoaResponse{
 			Msg: resp,
+		}
+		err = s.ConvertMsgToSoa()
+		if err != nil {
+			return nil, err
 		}
 		msgs = append(msgs, s)
 	}

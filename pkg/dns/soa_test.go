@@ -29,7 +29,7 @@ func TestGetSoa(t *testing.T) {
 			assert.Equal(t, err, c.expected, "errors don't match")
 
 			for i, r := range resp {
-				assert.Equal(t, r.OwnerName, c.input[i], "dns message owner didn't match")
+				assert.Equal(t, r.OwnerName, c.input[i], "dns message owner didn't match; owner name:", r.OwnerName, "input:", c.input[i])
 			}
 		})
 	}
