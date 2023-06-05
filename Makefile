@@ -1,18 +1,22 @@
 .DEFAULT_GOAL := default
 .PHONY: docs
 
-default:
-	go build
+default: lint test
+	@echo "Building binary for your machine..."
+	@go build
 
 # creates the command documentation
 docs:
-	go run main.go docs --dir docs/cmds
+	@echo "Generating command documentation in docs/cmd"
+	@go run main.go docs --dir docs/cmds
 
 test:
-	go test -v -race ./...
+	@echo "Running tests..."
+	@go test -v -race ./...
 
 lint:
-	golangci-lint run
+	@echo "Linting..."
+	@golangci-lint run
 
 update:
 	go get -u
@@ -20,4 +24,4 @@ update:
 	go mod vendor
 
 clean:
-	rm -rf lnet
+	@rm -rf lnet
