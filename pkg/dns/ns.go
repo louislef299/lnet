@@ -1,10 +1,15 @@
 package dns
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 
 	"github.com/moby/moby/libnetwork/resolvconf"
+)
+
+var (
+	ErrInvalidMsgAnswer = errors.New("The provided message doesn't have a valid answer section")
 )
 
 // Returns local name servers

@@ -138,8 +138,21 @@ Response will follow this format:
 			log.Fatal("could not get soa response: ", err)
 		}
 
-		for _, r := range resp {
-			fmt.Printf("SOA response for %s: %v\n", r.Server, r.Msg)
+		if len(resp) != len(args) {
+			log.Fatal("mismatched entry lengths")
+		}
+
+		raw, err := cmd.Flags().GetBool("raw")
+		if err != nil {
+			return err
+		}
+		for i, r := range resp {
+			fmt.Printf("SOA response for %s:\n", args[i])
+			if raw {
+				fmt.Println(r.Msg)
+			} else {
+				fmt.Printf("%s\n", r.String())
+			}
 		}
 		return nil
 	},
@@ -151,6 +164,8 @@ func init() {
 	nsCmd.AddCommand(soaCmd)
 
 	nsCmd.PersistentFlags().StringVar(&ns, "nameserver", "", "name server to use for DNS resolution")
+
+	soaCmd.Flags().Bool("raw", false, "prints out raw dns value")
 }
 
 func printInfo(header string, retval []string) {
