@@ -1,3 +1,6 @@
+//go:build go1.20
+// +build go1.20
+
 /*
 Copyright © 2023 Louis Lefebvre <louislefebvre1999@gmail.com>
 */
