@@ -69,13 +69,10 @@ can gather/return/configure local DNS services.`,
 var lookupCmd = &cobra.Command{
 	Use:     "lookup",
 	Aliases: []string{"lookup", "lkup", "lk", "lup"},
-	Short:   "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short:   "Lookup IP address for specified domain",
+	Long: `A DNS lookup, or DNS record lookup, is the process 
+through which human-readable domain names are 
+translated into a computer-readable IP address`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		for i, ns := range args {
 			if i != 0 {
@@ -87,20 +84,14 @@ to quickly create a Cobra application.`,
 					log.Println(err)
 					continue
 				}
-				fmt.Printf("CNAME for %s:\n", ns)
-				for _, c := range cname {
-					fmt.Println(c)
-				}
+				printInfo(fmt.Sprintf("CNAME for %s:", ns), cname)
 			} else {
 				ips, err := net.LookupHost(ns)
 				if err != nil {
 					log.Println(err)
 					continue
 				}
-				fmt.Printf("IPs for %s:\n", ns)
-				for _, addr := range ips {
-					fmt.Printf("  - %s\n", addr)
-				}
+				printInfo(fmt.Sprintf("IPs for %s:", ns), ips)
 			}
 		}
 		return nil

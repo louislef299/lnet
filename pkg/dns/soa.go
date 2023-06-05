@@ -22,11 +22,13 @@ type SoaResponse struct {
 	Msg *dns.Msg
 }
 
+// Returns pretty-print SOA response
 func (s *SoaResponse) String() string {
 	return fmt.Sprintf("ANSWER SECTION:\n  Owner Name: %s\n  TTL: %d\n  Primary NS: %s\n  Responsible Person: %s\n  Serial Number: %d\n  Refresh time in seconds: %d\n  Retry time in seconds: %d\n  Expire time in seconds: %d\n  Minimum TTL: %d",
 		s.OwnerName, s.TTL, s.MName, s.RName, s.SerialNumber, s.RefreshTime, s.RetryTime, s.ExpireTime, s.MinimumTTL)
 }
 
+// Returns the SOA response from the provided servers
 func GetSoa(nameserver string, servers []string) ([]*SoaResponse, error) {
 	c := new(dns.Client)
 	msg := new(dns.Msg)
