@@ -7,6 +7,7 @@ jobs:
       with:
         prerelease: true
         release-type: go
+        skip-github-release: true
         version-file: version.txt
 
 name: Release Please
