@@ -16,7 +16,6 @@ jobs:
           version: latest
   test:
     name: Go Test
-    needs: golangci
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
