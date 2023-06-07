@@ -7,7 +7,6 @@ jobs:
       with:
         prerelease: true
         release-type: go
-        token: ${{ secrets.RELEASE_PLEASE_PAT }}
         version-file: version.txt
 
 name: Release Please
