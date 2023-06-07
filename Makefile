@@ -1,6 +1,8 @@
 .DEFAULT_GOAL := default
 .PHONY: docs
 
+GOBIN = ${GOPATH}/bin
+
 default: lint test
 	@echo "Building binary for your machine..."
 	@go build
@@ -17,6 +19,10 @@ test:
 lint:
 	@echo "Linting..."
 	@golangci-lint run
+
+local: default
+	@echo "Moving binary to $(GOBIN)"
+	@mv lnet $(GOBIN)
 
 update:
 	go get -u
