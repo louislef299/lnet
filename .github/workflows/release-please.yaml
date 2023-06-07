@@ -6,7 +6,7 @@ jobs:
     - uses: google-github-actions/release-please-action@v3
       with:
         prerelease: true
-        release-type: go
+        release-type: simple
         skip-github-release: true
         version-file: version.txt
 
