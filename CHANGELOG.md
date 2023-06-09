@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.1](https://github.com/louislef299/lnet/compare/v1.1.0...v1.1.1) (2023-06-09)
+
+
+### Bug Fixes
+
+* event name ([c6a6335](https://github.com/louislef299/lnet/commit/c6a6335196511f13467cd1ed15f849e1d57d0854))
+* github event context ([e1ba644](https://github.com/louislef299/lnet/commit/e1ba6440813337d89fc32603da2544fa0b11179a))
+* non-conditional tag run ([121763e](https://github.com/louislef299/lnet/commit/121763e0ae4ede7c14b6a9940024382986e15622))
+* pass output between jobs ([9450bf1](https://github.com/louislef299/lnet/commit/9450bf1ba5db82311c1149a2d939f47d9d8b5804))
+* release flow ([cae286e](https://github.com/louislef299/lnet/commit/cae286e7819348d2d2659767390630b327c8ceae))
+* update release please check ([624093f](https://github.com/louislef299/lnet/commit/624093fb7a82449769a202fe1210a6a946a5644d))
+* yaml issue ([d2871fb](https://github.com/louislef299/lnet/commit/d2871fb6913568019c3f1ef3231bce06f0ec2e5a))
+
 ## [1.1.0](https://github.com/louislef299/lnet/compare/v1.0.2...v1.1.0) (2023-06-09)
 
 
