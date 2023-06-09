@@ -6,7 +6,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
     - id: release
       uses: google-github-actions/release-please-action@v3
@@ -18,7 +18,7 @@ jobs:
         echo "release created: ${{ steps.release.outputs.releases_created }}"
 
   go-release:
-    if: ${{ needs.release-please.outputs.release_created }}
+    if: ${{ needs.release-please.outputs.releases_created }}
     needs: release-please
     runs-on: ubuntu-latest
     steps:
