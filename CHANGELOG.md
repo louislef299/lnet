@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.2](https://github.com/louislef299/lnet/compare/v1.1.1...v1.1.2) (2023-06-09)
+
+
+### Bug Fixes
+
+* goreleaser not triggering ([b547c62](https://github.com/louislef299/lnet/commit/b547c622bcc2f198e0a835b1d4ee917982070c88))
+* missing an 's' ([94da819](https://github.com/louislef299/lnet/commit/94da8192571957260b90622d24e2066a4f0e48be))
+* modify name-&gt;id ([681e5c1](https://github.com/louislef299/lnet/commit/681e5c1dd827d323b7fc778bd4068d0d3ad33e7d))
+* releases everywhere ([53186ae](https://github.com/louislef299/lnet/commit/53186ae29837e7ed1ad6b4279e68c165685b073d))
+
 ## [1.1.1](https://github.com/louislef299/lnet/compare/v1.1.0...v1.1.1) (2023-06-09)
 
 
