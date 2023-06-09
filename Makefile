@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := default
 .PHONY: docs
 
-GOBIN = ${GOPATH}/bin
+GOBIN = ${HOME}/go/bin
 
 default: lint test
 	@echo "Building binary for your machine..."
