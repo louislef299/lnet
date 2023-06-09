@@ -46,6 +46,13 @@ var rootCmd = &cobra.Command{
             o}`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		go func() {
+			for {
+				<-cmd.Context().Done()
+				log.Println("context cancelled")
+				os.Exit(1)
+			}
+		}()
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
