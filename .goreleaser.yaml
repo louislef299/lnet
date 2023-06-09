@@ -16,6 +16,13 @@ builds:
       - "arm"
       - "arm64"
       - "386"
+    ldflags:
+      - -s -w -X 'github.com/louislef299/lnet/pkg/version.Version={{.Version}}'
+      - -X 'github.com/louislef299/lnet/pkg/version.BuildOS={{.Runtime.Goos}}'
+      - -X 'github.com/louislef299/lnet/pkg/version.BuildArch={{.Runtime.Goarch}}'
+      - -X 'github.com/louislef299/lnet/pkg/version.GoVersion={{.Env.GOVERSION}}'
+      - -X 'github.com/louislef299/lnet/pkg/version.BuildTime={{.Date}}'
+      - -X 'github.com/louislef299/lnet/pkg/version.CommitHash={{.ShortCommit}}'
 archives:
   - builds:
     - lnet

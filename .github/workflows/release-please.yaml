@@ -14,8 +14,6 @@ jobs:
         prerelease: true
         release-type: simple
         version-file: version.txt
-    - run: |
-        echo "release created: ${{ steps.release.outputs.releases_created }}"
 
   go-release:
     if: ${{ needs.release-please.outputs.releases_created }}
