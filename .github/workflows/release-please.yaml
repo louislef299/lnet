@@ -11,7 +11,10 @@ jobs:
         skip-github-release: true
         version-file: version.txt
     - uses: actions/checkout@v3
+    - run: |
+        echo "Github event: ${{ github.events.push }}"
     - name: tag release versions
+      if: ${{ steps.release.outputs.release_created }}
       run: |
         git config user.name github-actions[bot]
         git config user.email 41898282+github-actions[bot]@users.noreply.github.com
