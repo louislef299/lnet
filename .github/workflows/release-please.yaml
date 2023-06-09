@@ -1,4 +1,7 @@
 ---
+env:
+  GOVERSION: "1.20.0"
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -8,19 +11,27 @@ jobs:
       with:
         prerelease: true
         release-type: simple
-        skip-github-release: true
         version-file: version.txt
-    - uses: actions/checkout@v3
-    - run: |
-        echo "Github event: ${{ github.event_name }}"
-    - name: tag release versions
-      if: ${{ steps.release.outputs.release_created }} # ${{ github.event_name }} == "push"
-      run: |
-        git config user.name github-actions[bot]
-        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-        git remote add gh-token "https://${{ secrets.GITHUB_TOKEN }}@github.com/louislef299/lnet.git"
-        git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}".${{ steps.release.outputs.patch }}
-        git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+
+  go-release:
+    if: ${{ steps.release.outputs.release_created }}
+    needs: release-please
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '>=${{ env.GOVERSION }}'
+      - uses: goreleaser/goreleaser-action@v4
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 name: Release Please
 'on':
