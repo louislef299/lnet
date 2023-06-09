@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/louislef299/lnet/compare/v1.0.2...v1.1.0) (2023-06-09)
+
+
+### Features
+
+* release please just tag ([a2d7a3f](https://github.com/louislef299/lnet/commit/a2d7a3f9fa371119590143acd7050310b069b153))
+
+
+### Bug Fixes
+
+* deprecated checkout ([681246d](https://github.com/louislef299/lnet/commit/681246d5801a75e8b33b33163800c7b19af66de0))
+
 ## [1.0.2](https://github.com/louislef299/lnet/compare/v1.0.1...v1.0.2) (2023-06-09)
 
 
