@@ -10,7 +10,7 @@ jobs:
         release-type: simple
         skip-github-release: true
         version-file: version.txt
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: tag release versions
       if: ${{ steps.release.outputs.release_created }}
       run: |
