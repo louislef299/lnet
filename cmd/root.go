@@ -6,11 +6,13 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path"
 
 	"github.com/louislef299/lnet/pkg/dns"
+	"github.com/louislef299/lnet/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -46,6 +48,24 @@ var rootCmd = &cobra.Command{
 		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 		return nil
 	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		v, err := cmd.Flags().GetBool("version")
+		if err != nil {
+			return err
+		}
+		if v {
+			err := version.PrintVersion(os.Stdout, cmd)
+			if err != nil {
+				return fmt.Errorf("couldn't print the version: %v", err)
+			}
+		} else {
+			err := cmd.Usage()
+			if err != nil {
+				return fmt.Errorf("couldn't print usage: %v", err)
+			}
+		}
+		return nil
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -61,6 +81,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lnet.yaml)")
+	rootCmd.Flags().BoolP("version", "v", false, "print the version for lnet")
 }
 
 // initConfig reads in config file and ENV variables if set.
