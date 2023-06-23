@@ -4,6 +4,7 @@ Copyright © 2023 Louis Lefebvre <louislefebvre1999@gmail.com>
 package cmd
 
 import (
+	"log"
 	"os"
 	"strconv"
 
@@ -22,6 +23,10 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if usrID := os.Getuid(); usrID != 0 {
+			log.Println("current user id:", usrID)
+			log.Fatal("icmp command requires 'root' privileges(rerun with 'sudo')")
+		}
 		if i, _ := strconv.Atoi(os.Args[1]); i == 1 {
 			icmp.BottomOfIt()
 		} else {

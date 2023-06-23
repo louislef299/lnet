@@ -22,7 +22,7 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "lnet",
-	Short: "A network tool for the modern system administrator",
+	Short: "Louis' NetAdmin Tool",
 	Long: `A network tool for the modern system administrator
                     _______ ______
                     |     / |    /
@@ -109,7 +109,7 @@ func initConfig() {
 		if _, err := os.Stat(path.Join(home, cfgName)); errors.Is(err, os.ErrNotExist) {
 			f, err := os.OpenFile(path.Join(home, cfgName), os.O_APPEND|os.O_CREATE|os.O_RDWR, 0744)
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 			f.Close()
 		}

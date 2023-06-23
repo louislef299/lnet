@@ -1,11 +1,30 @@
 .DEFAULT_GOAL := default
-.PHONY: docs
+.PHONY: docs clean assembly
+
+BUILD_DIR= .build
+BINARY_NAME= lnet
 
 GOBIN = ${HOME}/go/bin
+GOTRACEBACK = 'crash'
+GOVERSION= $(shell go version | awk '{print $$3}')
+GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version=$(shell cat version.txt)' \
+-X 'github.com/louislef299/lnet/pkg/version.BuildOS=$(shell go env GOOS)' \
+-X 'github.com/louislef299/lnet/pkg/version.BuildArch=$(shell go env GOARCH)' \
+-X 'github.com/louislef299/lnet/pkg/version.GoVersion=$(GOVERSION)' \
+-X 'github.com/louislef299/lnet/pkg/version.BuildTime=$(shell date)' \
+-X 'github.com/louislef299/lnet/pkg/version.CommitHash=$(shell git rev-parse --short HEAD)'
 
-default: lint test
-	@echo "Building binary for your machine..."
-	@go build
+default: lint test $(BINARY_NAME)
+	@echo "Run './$(BINARY_NAME) -h' to get started"
+
+local: lint test $(BINARY_NAME)
+	@echo "GOVERSION: $(GOVERSION)"
+	@echo "Moving binary to $(GOBIN)"
+	@mv lnet $(GOBIN)
+
+$(BINARY_NAME):
+	@echo "Building $(BINARY_NAME) binary for your machine..."
+	@go build -ldflags="$(GOFLAGS)" -o $(BINARY_NAME)
 
 # creates the command documentation
 docs:
@@ -14,20 +33,23 @@ docs:
 
 test:
 	@echo "Running tests..."
-	@go test -v -race ./...
+	@go test -v -race -cover ./...
 
 lint:
 	@echo "Linting..."
 	@golangci-lint run
-
-local: default
-	@echo "Moving binary to $(GOBIN)"
-	@mv lnet $(GOBIN)
 
 update:
 	go get -u
 	go mod tidy
 	go mod vendor
 
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
+
+assembly: $(BINARY_NAME) $(BUILD_DIR)
+	@echo "Dumping assembly output to $(BUILD_DIR)/$(BINARY_NAME).asm..."
+	@go tool objdump $(BINARY_NAME) > $(BUILD_DIR)/$(BINARY_NAME).asm
+
 clean:
-	@rm -rf lnet
+	@rm -rf lnet $(BUILD_DIR)
