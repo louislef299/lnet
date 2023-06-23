@@ -16,6 +16,10 @@ GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version={{.Version}}'
 default: lint test $(BINARY_NAME)
 	@echo "Run './$(BINARY_NAME) -h' to get started"
 
+local: lint test $(BINARY_NAME)
+	@echo "Moving binary to $(GOBIN)"
+	@mv lnet $(GOBIN)
+
 $(BINARY_NAME):
 	@echo "Building $(BINARY_NAME) binary for your machine..."
 	@go build -ldflags="$(GOFLAGS)" -o $(BINARY_NAME)
@@ -32,10 +36,6 @@ test:
 lint:
 	@echo "Linting..."
 	@golangci-lint run
-
-local: default
-	@echo "Moving binary to $(GOBIN)"
-	@mv lnet $(GOBIN)
 
 update:
 	go get -u
