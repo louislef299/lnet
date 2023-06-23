@@ -109,7 +109,7 @@ func initConfig() {
 		if _, err := os.Stat(path.Join(home, cfgName)); errors.Is(err, os.ErrNotExist) {
 			f, err := os.OpenFile(path.Join(home, cfgName), os.O_APPEND|os.O_CREATE|os.O_RDWR, 0744)
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 			f.Close()
 		}

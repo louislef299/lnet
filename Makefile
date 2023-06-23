@@ -1,7 +1,12 @@
 .DEFAULT_GOAL := default
 .PHONY: docs
 
+<<<<<<< Updated upstream
 GOBIN = ${GOPATH}/bin
+=======
+GOBIN = ${HOME}/go/bin
+GOTRACEBACK = 'crash'
+>>>>>>> Stashed changes
 
 default: lint test
 	@echo "Building binary for your machine..."
