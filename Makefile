@@ -13,11 +13,12 @@ GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version={{.Version}}'
 -X 'github.com/louislef299/lnet/pkg/version.BuildTime={{.Date}}' \
 -X 'github.com/louislef299/lnet/pkg/version.CommitHash={{.ShortCommit}}'
 
-default: lint test binary
+default: lint test $(BINARY_NAME)
+	@echo "Run './$(BINARY_NAME) -h' to get started"
 
 $(BINARY_NAME):
 	@echo "Building $(BINARY_NAME) binary for your machine..."
-	@go build -ldflags="$(GOFLAGS)"
+	@go build -ldflags="$(GOFLAGS)" -o $(BINARY_NAME)
 
 # creates the command documentation
 docs:
