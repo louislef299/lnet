@@ -22,7 +22,7 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "lnet",
-	Short: "A network tool for the modern system administrator",
+	Short: "Louis' NetAdmin Tool",
 	Long: `A network tool for the modern system administrator
                     _______ ______
                     |     / |    /

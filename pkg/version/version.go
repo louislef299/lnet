@@ -34,8 +34,8 @@ type CommandVersion struct {
 	CommitHash string
 }
 
-func SetStdVersionTemplate(cmd *cobra.Command) {
-	cmd.SetVersionTemplate(`{{printf "%s: %s/%s %s/%s built-with/%s\n build-time/%s commit-hash/%s\n" .Short .Name .Version .BuildOS .BuildArch .GoVersion .BuildTime .CommitHash}}`)
+func GetTemplate() string {
+	return `{{printf "%s: %s/%s %s/%s built-with/%s\n build-time/%s commit-hash/%s\n" .Short .Name .Version .BuildOS .BuildArch .GoVersion .BuildTime .CommitHash}}`
 }
 
 // String prints the version of lnet
@@ -60,7 +60,7 @@ func PrintVersion(out io.Writer, cmd *cobra.Command) error {
 		GoVersion:  GoVersion,
 		CommitHash: CommitHash,
 	}
-	tmpl, err := template.New("lnetVersion").Parse(cmd.VersionTemplate())
+	tmpl, err := template.New("lnetVersion").Parse(GetTemplate())
 	if err != nil {
 		return err
 	}

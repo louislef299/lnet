@@ -6,17 +6,19 @@ BINARY_NAME= lnet
 
 GOBIN = ${HOME}/go/bin
 GOTRACEBACK = 'crash'
-GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version={{.Version}}' \
--X 'github.com/louislef299/lnet/pkg/version.BuildOS={{.Runtime.Goos}}' \
--X 'github.com/louislef299/lnet/pkg/version.BuildArch={{.Runtime.Goarch}}' \
--X 'github.com/louislef299/lnet/pkg/version.GoVersion={{.Env.GOVERSION}}' \
--X 'github.com/louislef299/lnet/pkg/version.BuildTime={{.Date}}' \
--X 'github.com/louislef299/lnet/pkg/version.CommitHash={{.ShortCommit}}'
+GOVERSION= $(shell go version | awk '{print $$3}')
+GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version=$(shell cat version.txt)' \
+-X 'github.com/louislef299/lnet/pkg/version.BuildOS=$(shell go env GOOS)' \
+-X 'github.com/louislef299/lnet/pkg/version.BuildArch=$(shell go env GOARCH)' \
+-X 'github.com/louislef299/lnet/pkg/version.GoVersion=$(GOVERSION)' \
+-X 'github.com/louislef299/lnet/pkg/version.BuildTime=$(shell date)' \
+-X 'github.com/louislef299/lnet/pkg/version.CommitHash=$(shell git rev-parse --short HEAD)'
 
 default: lint test $(BINARY_NAME)
 	@echo "Run './$(BINARY_NAME) -h' to get started"
 
 local: lint test $(BINARY_NAME)
+	@echo "GOVERSION: $(GOVERSION)"
 	@echo "Moving binary to $(GOBIN)"
 	@mv lnet $(GOBIN)
 
