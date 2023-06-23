@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/louislef299/lnet/compare/v1.2.0...v1.3.0) (2023-06-09)
+
+
+### Features
+
+* add basic icmp scan ([fc693f4](https://github.com/louislef299/lnet/commit/fc693f45ae8fbff9d997f99c90137c1c861faeae))
+* add dependabot ([55c64ea](https://github.com/louislef299/lnet/commit/55c64eadc96fd46b01d122b4f82f3500b9027358))
+* lnet version ([419edec](https://github.com/louislef299/lnet/commit/419edec95d5fdfb6bf55b9cae003e4cf8860bf6f))
+
+
+### Bug Fixes
+
+* rm unused echo github action ([89948fa](https://github.com/louislef299/lnet/commit/89948fa50e5eca764cd09a8daa708ceafb8bef56))
+
 ## [1.2.0](https://github.com/louislef299/lnet/compare/v1.1.2...v1.2.0) (2023-06-09)
 
 
