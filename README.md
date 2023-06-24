@@ -12,3 +12,7 @@ Check out the [command docs](docs/cmds) for more command-specific information.
 
 This repo uses release please along with go releaser in order to automatically
 produce artifacts in GitHub
+
+## Build
+
+You can build locally by running `make local`
