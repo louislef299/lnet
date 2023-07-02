@@ -31,5 +31,6 @@ You can also build locally by running `make local`.
 For a wireless adapter, I'm using the [Realtek RTL8812AU 2.4 & 5 Ghz USB Wireless Adapter][]. To install driver on Fedora, I am using the [public git repo][]. To check to see if the driver is successfully installed, run `inxi -Nxx`.
 
 [brew package manager]: https://brew.sh/
-[public git repo]: https://github.com/cilynx/rtl88x2bu
+[old public git repo]: https://github.com/cilynx/rtl88x2bu
+[public git repo]: https://github.com/gnab/rtl8812au
 [Realtek RTL8812AU 2.4 & 5 Ghz USB Wireless Adapter]: https://zsecurity.org/product/realtek-rtl8812au-2-4-5-ghz-usb-wireless-adapter/
