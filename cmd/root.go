@@ -121,7 +121,10 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Println("Couldn't use config file:", viper.ConfigFileUsed())
 	}
+}
 
+// Run to initialize local name servers if commands are concerned with DNS
+func initNameServer() {
 	if n := viper.GetString("nameserver"); n == "" {
 		ns, err := dns.GetLocalNS()
 		if err != nil {
