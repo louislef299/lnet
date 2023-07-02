@@ -22,6 +22,7 @@ var nsCmd = &cobra.Command{
 	Long: `A flexible tool for interrogating name servers. Also
 can gather/return/configure local DNS services.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		initNameServer()
 		if ns == "" {
 			nameservers := viper.GetStringSlice("nameservers")
 			ns = nameservers[0]
