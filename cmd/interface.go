@@ -12,6 +12,7 @@ import (
 	"unsafe"
 
 	"github.com/spf13/cobra"
+	"github.com/vishvananda/netlink"
 )
 
 const (
@@ -70,8 +71,25 @@ var interfaceCmd = &cobra.Command{
 	},
 }
 
+// interfaceSockCmd represents the interface command
+var interfaceSockCmd = &cobra.Command{
+	Use:     "socket",
+	Aliases: []string{"sock"},
+	Short:   "configure and find system network interfaces",
+	Long:    `Used to configure and find system network interfaces.`,
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		link, err := netlink.LinkByName("lo")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(link)
+		return nil
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(interfaceCmd)
+	interfaceCmd.AddCommand(interfaceSockCmd)
 }
 
 func printInterface(i net.Interface) string {
