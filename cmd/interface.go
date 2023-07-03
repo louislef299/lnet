@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"syscall"
 	"unsafe"
 
@@ -25,12 +26,15 @@ const (
 	sysARPHardwareGREIPv6  = 823 // any over GRE over IPv6 tunneling
 )
 
-// interfaceCmd represents the interface command
+// interfaceCmd represents the interface command. Utilizes
+// [RFC3549](https://datatracker.ietf.org/doc/html/rfc3549)
 var interfaceCmd = &cobra.Command{
 	Use:     "interface",
 	Aliases: []string{"if", "inter"},
 	Short:   "configure and find system network interfaces",
-	Long:    `Used to configure and find system network interfaces.`,
+	Long: `Used to configure and find system network interfaces. Controls
+the kernel space interfaces and routes using the NETLINK
+address family.(RFC3549)`,
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		var interfaces []net.Interface
 		if len(args) == 0 {
@@ -74,15 +78,37 @@ var interfaceCmd = &cobra.Command{
 // interfaceSockCmd represents the interface command
 var interfaceSockCmd = &cobra.Command{
 	Use:     "socket",
-	Aliases: []string{"sock"},
+	Aliases: []string{"sock", "mtu"},
 	Short:   "configure and find system network interfaces",
 	Long:    `Used to configure and find system network interfaces.`,
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		link, err := netlink.LinkByName("lo")
+		link, err := netlink.LinkByName(args[0])
+		if err != nil {
+			panic(err)
+		}
+
+		mtu, err := strconv.Atoi(args[1])
+		if err != nil {
+			panic(err)
+		}
+
+		err = netlink.LinkSetMTU(link, mtu)
 		if err != nil {
 			panic(err)
 		}
 		fmt.Println(link)
+
+		// Communication directly with NETLINK in the kernel uses a socket
+		// to communicate. A socket must first be created along with a send/
+		// recv request to gather information:
+
+		// fd, err := unix.Socket(unix.AF_NETLINK, unix.SOCK_RAW, unix.NETLINK_GENERIC)
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// To dive further into the subject, follow the Linux kernel introduction:
+		// https://docs.kernel.org/userspace-api/netlink/intro.html
+
 		return nil
 	},
 }
