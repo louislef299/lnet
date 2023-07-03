@@ -10,13 +10,15 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/louislef299/lnet/cmd"
 )
 
 func main() {
 	// Set the SIGINT context
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
 
 	cmd.Execute(ctx)
