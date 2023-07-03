@@ -62,5 +62,9 @@ assembly: $(BINARY_NAME) $(BUILD_DIR)
 	@echo "Dumping assembly output to $(BUILD_DIR)/$(BINARY_NAME).asm..."
 	@go tool objdump $(BINARY_NAME) > $(BUILD_DIR)/$(BINARY_NAME).asm
 
+analyze: $(BINARY_NAME)
+	@echo "Analysis of Go binary size:"
+	@goweight
+
 clean:
 	@rm -rf lnet $(BUILD_DIR) dist
