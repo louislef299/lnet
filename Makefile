@@ -19,9 +19,8 @@ default: lint test $(BINARY_NAME)
 	@echo "Run './$(BINARY_NAME) -h' to get started"
 
 local: lint test $(BINARY_NAME)
-	@echo "GOVERSION: $(GOVERSION)"
-	@echo "Moving binary to $(GOBIN)"
-	@mv lnet $(GOBIN)
+	@echo "Installing $(BINARY_NAME) on your machine..."
+	@go install -ldflags="$(GOFLAGS)"
 
 $(BINARY_NAME):
 	@echo "Building $(BINARY_NAME) binary for your machine..."

@@ -36,6 +36,10 @@ ifconfig wlan hw ether 00:22:33:44:55:66
 ifconfig wlan0 up
 ```
 
+## Issues with `sudo`
+
+If you are getting issues running `sudo lnet` with `command not found`, a simple way to get around this is to make a symbolic link in `usr/bin` to your go bin(if that is where you have it installed).
+
 [brew package manager]: https://brew.sh/
 [old public git repo]: https://github.com/cilynx/rtl88x2bu
 [public git repo]: https://github.com/gnab/rtl8812au
