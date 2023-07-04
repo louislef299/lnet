@@ -7,7 +7,7 @@ BINARY_NAME= lnet
 GOBIN = ${HOME}/go/bin
 GOTRACEBACK = 'crash'
 GOVERSION= $(shell go version | awk '{print $$3}')
-GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version=$(shell cat version.txt)' \
+GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version=$(shell cat version.txt)-alpha' \
 -X 'github.com/louislef299/lnet/pkg/version.BuildOS=$(shell go env GOOS)' \
 -X 'github.com/louislef299/lnet/pkg/version.BuildArch=$(shell go env GOARCH)' \
 -X 'github.com/louislef299/lnet/pkg/version.GoVersion=$(GOVERSION)' \
