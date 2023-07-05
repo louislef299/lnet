@@ -112,6 +112,34 @@ var interfaceUpCmd = &cobra.Command{
 	},
 }
 
+// interfacePromiscCmd represents the promiscuous command
+var interfacePromiscCmd = &cobra.Command{
+	Use:     "promiscuous",
+	Aliases: []string{"prom"},
+	Short:   "configure and find system network interfaces",
+	Long:    `Used to configure and find system network interfaces.`,
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		if len(args) == 0 {
+			return cmd.Usage()
+		}
+
+		for _, iface := range args {
+			link, err := netlink.LinkByName(iface)
+			if err != nil {
+				log.Fatalf("could not find network interface %s: %v", iface, err)
+			}
+
+			err = netlink.SetPromiscOn(link)
+			if err != nil {
+				log.Fatalf("could not enable promiscuous mode on interface %s: %v", iface, err)
+			}
+			fmt.Printf("successfully enabled promiscuous mode on interface %s\n", iface)
+		}
+
+		return nil
+	},
+}
+
 // interfaceSockCmd represents the interface command
 var interfaceSockCmd = &cobra.Command{
 	Use:     "socket",
@@ -155,6 +183,7 @@ func init() {
 	interfaceCmd.AddCommand(interfaceSockCmd)
 	interfaceCmd.AddCommand(interfaceUpCmd)
 	interfaceCmd.AddCommand(interfaceDownCmd)
+	interfaceCmd.AddCommand(interfacePromiscCmd)
 }
 
 func printInterface(i net.Interface) string {
