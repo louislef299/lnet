@@ -40,6 +40,8 @@ ifconfig wlan0 up
 
 If you are getting issues running `sudo lnet` with `command not found`, a simple way to get around this is to make a symbolic link in `usr/bin` to your go bin(if that is where you have it installed).
 
+Saving this link here because it looks like there is someone who is on a similar journey to me: [mdlayher](https://mdlayher.com/blog/linux-netlink-and-go-part-1-netlink/)
+
 [brew package manager]: https://brew.sh/
 [old public git repo]: https://github.com/cilynx/rtl88x2bu
 [public git repo]: https://github.com/gnab/rtl8812au
