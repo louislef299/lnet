@@ -160,6 +160,21 @@ func init() {
 	soaCmd.Flags().Bool("raw", false, "prints out raw dns value")
 }
 
+// Run to initialize local name servers if commands are concerned with DNS
+func initNameServer() {
+	if n := viper.GetString("nameserver"); n == "" {
+		ns, err := dns.GetLocalNS()
+		if err != nil {
+			log.Println("could not gather local name servers:", err)
+		}
+		viper.Set("nameservers", ns)
+	}
+
+	if err := viper.WriteConfig(); err != nil {
+		log.Println("couldn't write to config:", err)
+	}
+}
+
 func printInfo(header string, retval []string) {
 	if len(retval) > 0 {
 		fmt.Println(header)
