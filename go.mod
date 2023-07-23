@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/jaypipes/ghw v0.11.0
 	github.com/jpillora/icmpscan v1.3.1
+	github.com/mdlayher/arp v0.0.0-20220512170110-6706a2966875
 	github.com/mdlayher/netlink v1.7.2
 	github.com/miekg/dns v1.1.55
 	github.com/moby/moby v24.0.2+incompatible
@@ -12,6 +13,7 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/vishvananda/netlink v1.1.0
 	golang.org/x/sync v0.3.0
+	golang.org/x/sys v0.10.0
 	gotest.tools/v3 v3.4.0
 )
 
@@ -29,6 +31,8 @@ require (
 	github.com/jpillora/arp v0.0.0-20170204155840-96a8ba0be1a4 // indirect
 	github.com/jpillora/ipmath v0.0.0-20180121110145-ebede80a2ab9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mdlayher/ethernet v0.0.0-20220221185849-529eae5b6118 // indirect
+	github.com/mdlayher/packet v1.0.0 // indirect
 	github.com/mdlayher/socket v0.4.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -44,7 +48,6 @@ require (
 	github.com/vishvananda/netns v0.0.4 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.11.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
