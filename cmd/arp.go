@@ -4,11 +4,9 @@ Copyright © 2023 Louis Lefebvre <louislefebvre1999@gmail.com>
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"net"
 
-	"github.com/mdlayher/arp"
 	"github.com/spf13/cobra"
 )
 
@@ -38,19 +36,8 @@ datatracker.ietf.org/doc/html/rfc826`,
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		c, err := arp.Dial(iface)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		packet, frame, err := c.Read()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println("packet:", packet)
-		fmt.Println("frame:", frame)
+		log.Println(iface)
+		// mdlayher didn't implement working arp protocol :(
 		// decode the packet layer with:
 		// https://pkg.go.dev/github.com/google/gopacket
 	},
