@@ -6,9 +6,23 @@ package cmd
 import (
 	"log"
 	"net"
+	"unsafe"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/sys/unix"
 )
+
+type SockaddrInet4 struct {
+	Port int
+	Addr [4]byte
+	raw  unix.RawSockaddrInet4
+}
+
+type arpreq struct {
+	arp_pa    SockaddrInet4 /* protocol address */
+	arp_ha    SockaddrInet4 /* hardware address */
+	arp_flags int           /* flags */
+}
 
 // arpCmd represents the arp command
 var arpCmd = &cobra.Command{
@@ -37,6 +51,19 @@ datatracker.ietf.org/doc/html/rfc826`,
 			log.Fatal(err)
 		}
 		log.Println(iface)
+
+		fd, err := unix.Socket(unix.AF_INET, unix.SOCK_DGRAM, 0)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var areq *arpreq
+		err = ioctl(uintptr(fd), unix.SIOCGARP, unsafe.Pointer(areq))
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(areq)
+
 		// mdlayher didn't implement working arp protocol :(
 		// decode the packet layer with:
 		// https://pkg.go.dev/github.com/google/gopacket
@@ -55,4 +82,9 @@ func getMainInterface() (*net.Interface, error) {
 		return net.InterfaceByIndex(1)
 	}
 	return i, nil
+}
+
+func ioctl(fd uintptr, name int, data unsafe.Pointer) unix.Errno {
+	_, _, err := unix.RawSyscall(unix.SYS_IOCTL, fd, uintptr(name), uintptr(data))
+	return err
 }
