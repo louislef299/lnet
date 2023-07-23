@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"strconv"
 
+	nl "github.com/mdlayher/netlink"
 	"github.com/spf13/cobra"
 	"github.com/vishvananda/netlink"
+	"golang.org/x/sys/unix"
 )
 
 // interfaceCmd represents the interface command. Utilizes
@@ -147,32 +148,41 @@ var interfaceSockCmd = &cobra.Command{
 	Short:   "configure and find system network interfaces",
 	Long:    `Used to configure and find system network interfaces.`,
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		link, err := netlink.LinkByName(args[0])
-		if err != nil {
-			panic(err)
-		}
-
-		mtu, err := strconv.Atoi(args[1])
-		if err != nil {
-			panic(err)
-		}
-
-		err = netlink.LinkSetMTU(link, mtu)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(link)
-
-		// Communication directly with NETLINK in the kernel uses a socket
-		// to communicate. A socket must first be created along with a send/
-		// recv request to gather information:
-
-		// fd, err := unix.Socket(unix.AF_NETLINK, unix.SOCK_RAW, unix.NETLINK_GENERIC)
-		// if err != nil {
-		// 	panic(err)
-		// }
 		// To dive further into the subject, follow the Linux kernel introduction:
 		// https://docs.kernel.org/userspace-api/netlink/intro.html
+
+		// Communication directly with NETLINK in the kernel uses a socket
+		// to communicate
+		conn, err := nl.Dial(unix.AF_NETLINK, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
+
+		msg := nl.Message{
+			Header: nl.Header{
+				Flags: nl.Request | nl.Acknowledge | nl.Dump,
+				Type:  unix.RTM_GETLINK,
+			},
+		}
+
+		msgs, err := conn.Execute(msg)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if c := len(msgs); c != 1 {
+			log.Fatalf("expected 1 message, but got: %d", c)
+		}
+
+		// Decode the copied request header, starting after 4 bytes
+		// indicating "success"
+		var res nl.Message
+		if err := (&res).UnmarshalBinary(msgs[0].Data[4:]); err != nil {
+			log.Fatalf("failed to unmarshal response: %v", err)
+		}
+
+		log.Printf("res: %+v", res)
 
 		return nil
 	},
