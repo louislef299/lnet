@@ -4,6 +4,7 @@ Copyright © 2023 Louis Lefebvre <louislefebvre1999@gmail.com>
 package cmd
 
 import (
+	"encoding/binary"
 	"log"
 	"net"
 	"unsafe"
@@ -12,16 +13,29 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-type SockaddrInet4 struct {
-	Port int
-	Addr [4]byte
-	raw  unix.RawSockaddrInet4
+const (
+	opARPRequest = 1
+	opARPReply   = 2
+	hwLen        = 6
+)
+
+var (
+	ethernetBroadcast = net.HardwareAddr{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
+)
+
+func htons(p uint16) uint16 {
+	var b [2]byte
+	binary.BigEndian.PutUint16(b[:], p)
+	return *(*uint16)(unsafe.Pointer(&b))
 }
 
-type arpreq struct {
-	arp_pa    SockaddrInet4 /* protocol address */
-	arp_ha    SockaddrInet4 /* hardware address */
-	arp_flags int           /* flags */
+// arpHeader specifies the header for an ARP message.
+type arpHeader struct {
+	hardwareType          uint16
+	protocolType          uint16
+	hardwareAddressLength uint8
+	protocolAddressLength uint8
+	opcode                uint16
 }
 
 // arpCmd represents the arp command
@@ -52,17 +66,19 @@ datatracker.ietf.org/doc/html/rfc826`,
 		}
 		log.Println(iface)
 
-		fd, err := unix.Socket(unix.AF_INET, unix.SOCK_DGRAM, 0)
-		if err != nil {
-			log.Fatal(err)
-		}
+		// arp.ARPSendGratuitous(map[string][]net.IP{"en0"})
 
-		var areq *arpreq
-		err = ioctl(uintptr(fd), unix.SIOCGARP, unsafe.Pointer(areq))
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Println(areq)
+		// fd, err := unix.Socket(unix.AF_INET, unix.SOCK_DGRAM, 0)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+
+		// var areq *arpHeader
+		// err = ioctl(uintptr(fd), unix.SIOCGARP, unsafe.Pointer(areq))
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// log.Println(areq)
 
 		// mdlayher didn't implement working arp protocol :(
 		// decode the packet layer with:
