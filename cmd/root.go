@@ -16,7 +16,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	errLog  bool
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -43,12 +46,24 @@ var rootCmd = &cobra.Command{
               /=/ 
             \|/
             o}`,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		var f *os.File
+		if errLog {
+			f, err = os.Create("lnet-log.txt")
+			if err != nil {
+				return err
+			}
+			log.SetOutput(f)
+		}
+
 		go func() {
 			for {
 				<-cmd.Context().Done()
 				log.Println("context cancelled")
+				if errLog {
+
+				}
 				os.Exit(1)
 			}
 		}()
@@ -87,6 +102,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lnet.yaml)")
+	rootCmd.PersistentFlags().BoolVar(&errLog, "logfile", false, "write log output to a file")
 	rootCmd.Flags().BoolP("version", "v", false, "print the version for lnet")
 }
 

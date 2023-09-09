@@ -4,11 +4,13 @@ Copyright © 2023 Louis Lefebvre <louislefebvre1999@gmail.com>
 package cmd
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"log"
 	"net"
 	"net/netip"
 	"os"
+	"sync/atomic"
 
 	licmp "github.com/louislef299/lnet/pkg/icmp"
 	"github.com/spf13/cobra"
@@ -31,6 +33,7 @@ var icmpCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		var sequenceNum uint32 = 1
 		for _, iface := range ifaces {
 			addrs, err := iface.Addrs()
 			if err != nil {
@@ -55,9 +58,24 @@ var icmpCmd = &cobra.Command{
 				continue
 			}
 
+			// Use udp if not root user
+			var network string
+			if os.Getuid() == 0 {
+				network = "ip4:icmp"
+			} else {
+				network = "udp4"
+			}
+
+			c, err := icmp.ListenPacket(network, prefix.Addr().String())
+			if err != nil {
+				log.Fatalf("listen err, %s", err)
+			}
+			defer c.Close()
+
 			for addr := prefix.Masked().Addr(); prefix.Contains(addr); addr = addr.Next() {
 				// Send echo, but don't worry about errors
-				sendEcho(addr)
+				go sendEcho(c, addr, int(sequenceNum))
+				atomic.AddUint32(&sequenceNum, 1)
 			}
 		}
 	},
@@ -67,32 +85,27 @@ func init() {
 	rootCmd.AddCommand(icmpCmd)
 }
 
-func sendEcho(addr netip.Addr) error {
-	c, err := icmp.ListenPacket("udp4", addr.String())
-	if err != nil {
-		return fmt.Errorf("listen err, %s", err)
-	}
-	defer c.Close()
-
+func sendEcho(conn *icmp.PacketConn, addr netip.Addr, sequenceNum int) error {
+	log.Println("pinging", addr.String())
 	wm := icmp.Message{
 		Type: ipv4.ICMPTypeEcho,
 		Code: 0,
 		Body: &icmp.Echo{
 			ID:   os.Getpid() & 0xffff,
-			Seq:  1,
-			Data: []byte("HELLO-R-U-THERE"),
+			Seq:  sequenceNum,
+			Data: hash(addr),
 		},
 	}
 	wb, err := wm.Marshal(nil)
 	if err != nil {
 		return err
 	}
-	if _, err := c.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP(addr.String())}); err != nil {
+	if _, err := conn.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP(addr.String())}); err != nil {
 		return fmt.Errorf("WriteTo err, %s", err)
 	}
 
 	rb := make([]byte, 1500)
-	n, peer, err := c.ReadFrom(rb)
+	n, peer, err := conn.ReadFrom(rb)
 	if err != nil {
 		return err
 	}
@@ -125,4 +138,13 @@ func sendEcho(addr netip.Addr) error {
 		}
 	}
 	return nil
+}
+
+// Hash an IP with SHA1
+func hash(ip netip.Addr) []byte {
+	input := []byte(ip.String())
+	h := sha1.New()
+	h.Write(input)
+	output := h.Sum(nil)
+	return output
 }
