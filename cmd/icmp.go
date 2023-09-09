@@ -9,23 +9,21 @@ import (
 	"net"
 	"os"
 
+	licmp "github.com/louislef299/lnet/pkg/icmp"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/icmp"
 	"golang.org/x/net/ipv4"
 )
 
-const targetIP = "8.8.8.8"
+var (
+	icmpCode = []string{"network", "host", "protocol", "port", "must-fragment", "dest"}
+)
 
 // icmpCmd represents the icmp command
 var icmpCmd = &cobra.Command{
 	Use:   "icmp",
 	Short: "Runs an ICMP scan on your local device",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long:  `ref: rfc-editor.org/rfc/rfc792`,
 	Run: func(cmd *cobra.Command, args []string) {
 		iface, err := net.InterfaceByName("wlp1s0")
 		if err != nil {
@@ -88,24 +86,14 @@ to quickly create a Cobra application.`,
 			os.Exit(1)
 		}
 
-		reply, ok := rm.Body.(*icmp.Echo)
+		// Validate echo response
+		_, ok := rm.Body.(*icmp.Echo)
 		if !ok {
 			switch b := rm.Body.(type) {
 			case *icmp.DstUnreach:
-				dest := ""
-				switch rm.Code {
-				case 0:
-					dest = "network"
-				case 1:
-					dest = "host"
-				case 2:
-					dest = "protocol"
-				case 3:
-					dest = "port"
-				case 4:
-					dest = "must-fragment"
-				default:
-					dest = "dest"
+				dest, err := licmp.IcmpDestUnreachableCode(rm.Code)
+				if err != nil {
+					log.Fatal(err)
 				}
 				log.Fatalf("icmp %s-unreachable", dest)
 			case *icmp.PacketTooBig:
@@ -114,11 +102,6 @@ to quickly create a Cobra application.`,
 				log.Fatal("icmp non-echo response")
 			}
 		}
-		ip, err := icmp.ParseIPv4Header(reply.Data)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(ip)
 	},
 }
 

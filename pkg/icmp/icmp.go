@@ -1,6 +1,7 @@
 package icmp
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -8,6 +9,21 @@ import (
 
 	"github.com/jpillora/icmpscan"
 )
+
+var (
+	icmpCode           = []string{"network", "host", "protocol", "port", "must-fragment", "dest"}
+	ErrInvalidICMPCode = errors.New("the provided code is invalid")
+)
+
+// When ICMP returned message is of type "Destination Unreachable", can
+// call the code to get the hardware error.
+func IcmpDestUnreachableCode(code int) (string, error) {
+	if code > len(icmpCode) {
+		return "", ErrInvalidICMPCode
+	} else {
+		return icmpCode[code], nil
+	}
+}
 
 func IcmpScan() {
 	hosts, err := icmpscan.Run(icmpscan.Spec{
