@@ -201,6 +201,10 @@ func init() {
 }
 
 func printInterface(i net.Interface) string {
-	return fmt.Sprintf("(%d)%s:\n  flags: <%v>\n  mtu: %d\n  hardware address: %s",
-		i.Index, i.Name, i.Flags, i.MTU, i.HardwareAddr.String())
+	addrs, err := i.Addrs()
+	if err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("(%d)%s:\n  flags: <%v>\n  mtu: %d\n  hardware address: %s\n  ip addrs: %v",
+		i.Index, i.Name, i.Flags, i.MTU, i.HardwareAddr.String(), addrs)
 }

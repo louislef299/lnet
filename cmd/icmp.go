@@ -26,36 +26,39 @@ var icmpCmd = &cobra.Command{
 	Short: "Runs an ICMP scan on your local device",
 	Long:  `ref: rfc-editor.org/rfc/rfc792`,
 	Run: func(cmd *cobra.Command, args []string) {
-		iface, err := net.InterfaceByName("wlp1s0")
+		ifaces, err := net.Interfaces()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		addrs, err := iface.Addrs()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(addrs)
-
-		var srcIP string
-		for _, addr := range addrs {
-			src, _, _ := net.ParseCIDR(addr.String())
-			if src.To4() != nil {
-				//first ipv4 address on interface
-				srcIP = addr.String()
-				break
+		for _, iface := range ifaces {
+			addrs, err := iface.Addrs()
+			if err != nil {
+				log.Fatal(err)
 			}
-		}
-		fmt.Println("pinging address", srcIP)
 
-		prefix, err := netip.ParsePrefix(srcIP)
-		if err != nil {
-			log.Fatal(err)
-		}
+			var srcIP string
+			for _, addr := range addrs {
+				src, _, _ := net.ParseCIDR(addr.String())
+				if src.To4() != nil {
+					//first ipv4 address on interface
+					srcIP = addr.String()
+					break
+				}
+			}
 
-		err = sendEcho(prefix.Addr())
-		if err != nil {
-			log.Fatal(err)
+			prefix, err := netip.ParsePrefix(srcIP)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if prefix.Addr().IsLoopback() {
+				continue
+			}
+
+			for addr := prefix.Masked().Addr(); prefix.Contains(addr); addr = addr.Next() {
+				// Send echo, but don't worry about errors
+				sendEcho(addr)
+			}
 		}
 	},
 }
@@ -64,8 +67,8 @@ func init() {
 	rootCmd.AddCommand(icmpCmd)
 }
 
-func sendEcho(ip netip.Addr) error {
-	c, err := icmp.ListenPacket("udp4", ip.String())
+func sendEcho(addr netip.Addr) error {
+	c, err := icmp.ListenPacket("udp4", addr.String())
 	if err != nil {
 		return fmt.Errorf("listen err, %s", err)
 	}
@@ -84,7 +87,7 @@ func sendEcho(ip netip.Addr) error {
 	if err != nil {
 		return err
 	}
-	if _, err := c.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP(ip.String())}); err != nil {
+	if _, err := c.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP(addr.String())}); err != nil {
 		return fmt.Errorf("WriteTo err, %s", err)
 	}
 
