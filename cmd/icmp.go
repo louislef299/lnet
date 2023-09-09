@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/netip"
 	"os"
 
 	licmp "github.com/louislef299/lnet/pkg/icmp"
@@ -41,70 +42,84 @@ var icmpCmd = &cobra.Command{
 			src, _, _ := net.ParseCIDR(addr.String())
 			if src.To4() != nil {
 				//first ipv4 address on interface
-				srcIP = src.String()
+				srcIP = addr.String()
 				break
 			}
 		}
+		fmt.Println("pinging address", srcIP)
 
-		c, err := icmp.ListenPacket("udp4", srcIP)
-		if err != nil {
-			log.Fatalf("listen err, %s", err)
-		}
-		defer c.Close()
-
-		wm := icmp.Message{
-			Type: ipv4.ICMPTypeEcho,
-			Code: 0,
-			Body: &icmp.Echo{
-				ID:   os.Getpid() & 0xffff,
-				Seq:  1,
-				Data: []byte("HELLO-R-U-THERE"),
-			},
-		}
-		wb, err := wm.Marshal(nil)
+		prefix, err := netip.ParsePrefix(srcIP)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if _, err := c.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP("192.168.4.1")}); err != nil {
-			log.Fatalf("WriteTo err, %s", err)
-		}
 
-		rb := make([]byte, 1500)
-		n, peer, err := c.ReadFrom(rb)
+		err = sendEcho(prefix.Addr())
 		if err != nil {
 			log.Fatal(err)
-		}
-		rm, err := icmp.ParseMessage(ipv4.ICMPTypeEchoReply.Protocol(), rb[:n])
-		if err != nil {
-			log.Fatal(err)
-		}
-		switch rm.Type {
-		case ipv4.ICMPTypeEchoReply:
-			log.Printf("got reflection from %v", peer)
-		default:
-			log.Printf("got %+v; want echo reply", rm)
-			os.Exit(1)
-		}
-
-		// Validate echo response
-		_, ok := rm.Body.(*icmp.Echo)
-		if !ok {
-			switch b := rm.Body.(type) {
-			case *icmp.DstUnreach:
-				dest, err := licmp.IcmpDestUnreachableCode(rm.Code)
-				if err != nil {
-					log.Fatal(err)
-				}
-				log.Fatalf("icmp %s-unreachable", dest)
-			case *icmp.PacketTooBig:
-				log.Fatalf("icmp packet-too-big (mtu %d)", b.MTU)
-			default:
-				log.Fatal("icmp non-echo response")
-			}
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(icmpCmd)
+}
+
+func sendEcho(ip netip.Addr) error {
+	c, err := icmp.ListenPacket("udp4", ip.String())
+	if err != nil {
+		return fmt.Errorf("listen err, %s", err)
+	}
+	defer c.Close()
+
+	wm := icmp.Message{
+		Type: ipv4.ICMPTypeEcho,
+		Code: 0,
+		Body: &icmp.Echo{
+			ID:   os.Getpid() & 0xffff,
+			Seq:  1,
+			Data: []byte("HELLO-R-U-THERE"),
+		},
+	}
+	wb, err := wm.Marshal(nil)
+	if err != nil {
+		return err
+	}
+	if _, err := c.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP(ip.String())}); err != nil {
+		return fmt.Errorf("WriteTo err, %s", err)
+	}
+
+	rb := make([]byte, 1500)
+	n, peer, err := c.ReadFrom(rb)
+	if err != nil {
+		return err
+	}
+	rm, err := icmp.ParseMessage(ipv4.ICMPTypeEchoReply.Protocol(), rb[:n])
+	if err != nil {
+		return err
+	}
+
+	switch rm.Type {
+	case ipv4.ICMPTypeEchoReply:
+		log.Printf("got reflection from %v", peer)
+	default:
+		return fmt.Errorf("got %+v; want echo reply", rm)
+	}
+
+	// Validate echo response
+	_, ok := rm.Body.(*icmp.Echo)
+	if !ok {
+		switch b := rm.Body.(type) {
+		case *icmp.DstUnreach:
+			dest, err := licmp.IcmpDestUnreachableCode(rm.Code)
+			if err != nil {
+				return err
+			}
+			return fmt.Errorf("icmp %s-unreachable", dest)
+		case *icmp.PacketTooBig:
+			return fmt.Errorf("icmp packet-too-big (mtu %d)", b.MTU)
+		default:
+			return fmt.Errorf("icmp non-echo response")
+		}
+	}
+	return nil
 }

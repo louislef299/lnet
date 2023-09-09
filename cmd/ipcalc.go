@@ -16,49 +16,52 @@ import (
 
 // ipcalcCmd represents the ipcalc command
 var ipcalcCmd = &cobra.Command{
-	Use:   "ipcalc",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:     "ipcalc",
+	Example: "  lnet ipcalc 192.168.11.5/24",
+	Short:   "Returns information for an IPv4 CIDR range.",
+	Long: `Returns information for an IPv4 CIDR range. An 
+IP address to operate on must always be specified 
+along with a netmask or a CIDR prefix as well. `,
 	Run: func(cmd *cobra.Command, args []string) {
-		// if len(args) < 1 {
-		// 	log.Println("requires an ip address")
-		// }
-		prefix, err := netip.ParsePrefix("192.168.11.5/24")
+		if len(args) < 1 {
+			log.Println("requires an ip address")
+		}
+		prefix, err := netip.ParsePrefix(args[0])
 		if err != nil {
 			log.Fatal("could not parse provided ip address", err)
 		}
 
 		fmt.Println("Printing information for IP", prefix.String())
-		prettyPrint(os.Stdout, "Address", prefix.Addr())
+		prettyPrintNetwork(os.Stdout, "Address", prefix.Addr())
+
+		if prefixMask(prefix) == 32 {
+			fmt.Println("Network IP Space: 1")
+			return
+		}
+
 		netPrefix := prefix.Masked()
 
 		count := 0
 		var addr netip.Addr
 		for addr = netPrefix.Addr(); prefix.Contains(addr); addr = addr.Next() {
 			var header string
-			print := true
-			switch count {
-			case 0:
+			if count == 0 {
 				header = "Network"
-			case 1:
+			} else if count == 1 && prefixMask(prefix) < 31 {
 				header = "HostMin"
-			default:
-				print = false
 			}
 
-			if print {
-				prettyPrint(os.Stdout, header, addr)
+			if header != "" {
+				prettyPrintNetwork(os.Stdout, header, addr)
 			}
 			count++
 		}
 
-		prettyPrint(os.Stdout, "HostMax", addr.Prev().Prev())
-		prettyPrint(os.Stdout, "Broadcast", addr.Prev())
+		if prefixMask(prefix) < 31 {
+			prettyPrintNetwork(os.Stdout, "HostMax", addr.Prev().Prev())
+		}
+		prettyPrintNetwork(os.Stdout, "Broadcast", addr.Prev())
+		fmt.Println("Network IP Space:", count)
 	},
 }
 
@@ -66,7 +69,8 @@ func init() {
 	rootCmd.AddCommand(ipcalcCmd)
 }
 
-func prettyPrint(out io.Writer, prefix string, addr netip.Addr) {
+// Pretty prints the network IP and binary address
+func prettyPrintNetwork(out io.Writer, prefix string, addr netip.Addr) {
 	addrBin, err := addr.MarshalBinary()
 	if err != nil {
 		panic(err)
