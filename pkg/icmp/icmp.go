@@ -1,13 +1,19 @@
 package icmp
 
 import (
+	"crypto/sha1"
 	"errors"
 	"fmt"
 	"log"
 	"net"
+	"net/netip"
+	"os"
 	"regexp"
+	"syscall"
 
 	"github.com/jpillora/icmpscan"
+	"golang.org/x/net/icmp"
+	"golang.org/x/net/ipv4"
 )
 
 var (
@@ -78,4 +84,51 @@ func BottomOfIt() {
 			fmt.Println(n, "has an ip", ipv4)
 		}
 	}
+}
+
+func SendEcho(conn *icmp.PacketConn, addr netip.Addr, sequenceNum int) error {
+	log.Println("pinging", addr.String())
+	wm := icmp.Message{
+		Type: ipv4.ICMPTypeEcho,
+		Code: 0,
+		Body: &icmp.Echo{
+			ID:   os.Getpid() & 0xffff,
+			Seq:  sequenceNum,
+			Data: hash(addr),
+		},
+	}
+	wb, err := wm.Marshal(nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.WriteTo(wb, &net.IPAddr{IP: net.ParseIP(addr.String())})
+	if neterr, ok := err.(*net.OpError); ok {
+		if neterr.Err == syscall.ENOBUFS {
+			return nil
+		}
+	}
+	return err
+}
+
+func ReadEcho(conn *icmp.PacketConn) (*icmp.Message, net.Addr, error) {
+	rb := make([]byte, 1500)
+	n, peer, err := conn.ReadFrom(rb)
+	if err != nil {
+		return nil, nil, err
+	}
+	rm, err := icmp.ParseMessage(ipv4.ICMPTypeEchoReply.Protocol(), rb[:n])
+	if err != nil {
+		return nil, nil, err
+	}
+	return rm, peer, err
+}
+
+// Hash an IP with SHA1
+func hash(ip netip.Addr) []byte {
+	input := []byte(ip.String())
+	h := sha1.New()
+	h.Write(input)
+	output := h.Sum(nil)
+	return output
 }

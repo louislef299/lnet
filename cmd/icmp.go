@@ -4,8 +4,6 @@ Copyright © 2023 Louis Lefebvre <louislefebvre1999@gmail.com>
 package cmd
 
 import (
-	"crypto/sha1"
-	"fmt"
 	"log"
 	"net"
 	"net/netip"
@@ -50,11 +48,13 @@ var icmpCmd = &cobra.Command{
 				}
 			}
 
+			log.Println("pinging off connection", srcIP)
 			prefix, err := netip.ParsePrefix(srcIP)
 			if err != nil {
 				log.Fatal(err)
 			}
 			if prefix.Addr().IsLoopback() {
+				log.Println("moving along")
 				continue
 			}
 
@@ -72,10 +72,51 @@ var icmpCmd = &cobra.Command{
 			}
 			defer c.Close()
 
+			count := 0
 			for addr := prefix.Masked().Addr(); prefix.Contains(addr); addr = addr.Next() {
+				if count < 3 {
+					count++
+					continue
+				}
 				// Send echo, but don't worry about errors
-				go sendEcho(c, addr, int(sequenceNum))
+				err := licmp.SendEcho(c, addr, int(sequenceNum))
+				if err != nil {
+					log.Fatal(err)
+				}
 				atomic.AddUint32(&sequenceNum, 1)
+
+				rm, peer, err := licmp.ReadEcho(c)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				switch rm.Type {
+				case ipv4.ICMPTypeEchoReply:
+					log.Printf("got reflection from %v", peer)
+				case ipv4.ICMPTypeDestinationUnreachable:
+					log.Fatal("destination is unreachable!")
+				default:
+					log.Fatalf("got %+v; want echo reply", rm)
+				}
+
+				// Validate echo response
+				_, ok := rm.Body.(*icmp.Echo)
+				if !ok {
+					switch b := rm.Body.(type) {
+					case *icmp.DstUnreach:
+						dest, err := licmp.IcmpDestUnreachableCode(rm.Code)
+						if err != nil {
+							log.Fatal(err)
+						}
+						log.Fatalf("icmp %s-unreachable", dest)
+					case *icmp.PacketTooBig:
+						log.Fatalf("icmp packet-too-big (mtu %d)", b.MTU)
+					default:
+						log.Fatal("icmp non-echo response")
+					}
+				}
+
+				count++
 			}
 		}
 	},
@@ -83,68 +124,4 @@ var icmpCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(icmpCmd)
-}
-
-func sendEcho(conn *icmp.PacketConn, addr netip.Addr, sequenceNum int) error {
-	log.Println("pinging", addr.String())
-	wm := icmp.Message{
-		Type: ipv4.ICMPTypeEcho,
-		Code: 0,
-		Body: &icmp.Echo{
-			ID:   os.Getpid() & 0xffff,
-			Seq:  sequenceNum,
-			Data: hash(addr),
-		},
-	}
-	wb, err := wm.Marshal(nil)
-	if err != nil {
-		return err
-	}
-	if _, err := conn.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP(addr.String())}); err != nil {
-		return fmt.Errorf("WriteTo err, %s", err)
-	}
-
-	rb := make([]byte, 1500)
-	n, peer, err := conn.ReadFrom(rb)
-	if err != nil {
-		return err
-	}
-	rm, err := icmp.ParseMessage(ipv4.ICMPTypeEchoReply.Protocol(), rb[:n])
-	if err != nil {
-		return err
-	}
-
-	switch rm.Type {
-	case ipv4.ICMPTypeEchoReply:
-		log.Printf("got reflection from %v", peer)
-	default:
-		return fmt.Errorf("got %+v; want echo reply", rm)
-	}
-
-	// Validate echo response
-	_, ok := rm.Body.(*icmp.Echo)
-	if !ok {
-		switch b := rm.Body.(type) {
-		case *icmp.DstUnreach:
-			dest, err := licmp.IcmpDestUnreachableCode(rm.Code)
-			if err != nil {
-				return err
-			}
-			return fmt.Errorf("icmp %s-unreachable", dest)
-		case *icmp.PacketTooBig:
-			return fmt.Errorf("icmp packet-too-big (mtu %d)", b.MTU)
-		default:
-			return fmt.Errorf("icmp non-echo response")
-		}
-	}
-	return nil
-}
-
-// Hash an IP with SHA1
-func hash(ip netip.Addr) []byte {
-	input := []byte(ip.String())
-	h := sha1.New()
-	h.Write(input)
-	output := h.Sum(nil)
-	return output
 }
