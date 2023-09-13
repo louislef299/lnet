@@ -7,7 +7,6 @@ import (
 	"log"
 	"net"
 	"net/netip"
-	"os"
 	"sync/atomic"
 
 	licmp "github.com/louislef299/lnet/pkg/icmp"
@@ -58,15 +57,7 @@ var icmpCmd = &cobra.Command{
 				continue
 			}
 
-			// Use udp if not root user
-			var network string
-			if os.Getuid() == 0 {
-				network = "ip4:icmp"
-			} else {
-				network = "udp4"
-			}
-
-			c, err := icmp.ListenPacket(network, prefix.Addr().String())
+			c, err := licmp.Listen(prefix.Addr())
 			if err != nil {
 				log.Fatalf("listen err, %s", err)
 			}
@@ -78,7 +69,7 @@ var icmpCmd = &cobra.Command{
 					count++
 					continue
 				}
-				// Send echo, but don't worry about errors
+
 				err := licmp.SendEcho(c, addr, int(sequenceNum))
 				if err != nil {
 					log.Fatal(err)

@@ -19,6 +19,7 @@ import (
 var (
 	icmpCode           = []string{"network", "host", "protocol", "port", "must-fragment", "dest"}
 	ErrInvalidICMPCode = errors.New("the provided code is invalid")
+	ErrInvalidAddress  = errors.New("the IP address provided is invalid")
 )
 
 // When ICMP returned message is of type "Destination Unreachable", can
@@ -31,61 +32,40 @@ func IcmpDestUnreachableCode(code int) (string, error) {
 	}
 }
 
-func IcmpScan() {
-	hosts, err := icmpscan.Run(icmpscan.Spec{
-		Hostnames: true,
-		MACs:      true,
-		Log:       true,
-	})
-	if err != nil {
-		log.Fatal("could not run local scan:", err)
+// Open an ICMP socket
+func Listen(addr netip.Addr) (*icmp.PacketConn, error) {
+	var network string
+	priv := os.Getuid() == 0
+	if priv && addr.Is4() {
+		network = "ip4:icmp"
+	} else if !priv && addr.Is4() {
+		network = "udp4" // Use udp if not root user
+	} else if priv && addr.Is6() {
+		network = "ip6:ipv6-icmp"
+	} else if !priv && addr.Is6() {
+		network = "udp6"
+	} else {
+		return nil, ErrInvalidAddress
 	}
 
-	decimals := regexp.MustCompile(`\.\d+`)
-	for i, host := range hosts {
-		if host.Active {
-			if host.MAC == "" {
-				host.MAC = "-"
-			}
-			if host.Hostname == "" {
-				host.Hostname = "-"
-			}
-			rtt := decimals.ReplaceAllString(host.RTT.String(), "")
-			fmt.Printf("[%03d] %15s, %6s, %17s, %s\n", i+1, host.IP, rtt, host.MAC, host.Hostname)
-		}
-	}
+	return icmp.ListenPacket(network, addr.String())
 }
 
-func BottomOfIt() {
-	intfs, err := net.Interfaces()
+// Takes in an existing ICMP connection and returns the message
+func ReadEcho(conn *icmp.PacketConn) (*icmp.Message, net.Addr, error) {
+	rb := make([]byte, 1500)
+	n, peer, err := conn.ReadFrom(rb)
 	if err != nil {
-		log.Fatal(err)
+		return nil, nil, err
 	}
-	for _, n := range intfs {
-		addrs, err := n.Addrs()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// check if addr is ipv4
-		valid := false
-		var ipv4 net.IP
-		for _, addr := range addrs {
-			ip, _, err := net.ParseCIDR(addr.String())
-			if err != nil {
-				log.Fatal(err)
-			}
-			if i := ip.To4(); i != nil {
-				valid = true
-				ipv4 = i
-			}
-		}
-		if valid {
-			fmt.Println(n, "has an ip", ipv4)
-		}
+	rm, err := icmp.ParseMessage(ipv4.ICMPTypeEchoReply.Protocol(), rb[:n])
+	if err != nil {
+		return nil, nil, err
 	}
+	return rm, peer, err
 }
 
+// Send an ICMP echo to the provided IP address given an existing connection
 func SendEcho(conn *icmp.PacketConn, addr netip.Addr, sequenceNum int) error {
 	log.Println("pinging", addr.String())
 	wm := icmp.Message{
@@ -111,19 +91,6 @@ func SendEcho(conn *icmp.PacketConn, addr netip.Addr, sequenceNum int) error {
 	return err
 }
 
-func ReadEcho(conn *icmp.PacketConn) (*icmp.Message, net.Addr, error) {
-	rb := make([]byte, 1500)
-	n, peer, err := conn.ReadFrom(rb)
-	if err != nil {
-		return nil, nil, err
-	}
-	rm, err := icmp.ParseMessage(ipv4.ICMPTypeEchoReply.Protocol(), rb[:n])
-	if err != nil {
-		return nil, nil, err
-	}
-	return rm, peer, err
-}
-
 // Hash an IP with SHA1
 func hash(ip netip.Addr) []byte {
 	input := []byte(ip.String())
@@ -131,4 +98,29 @@ func hash(ip netip.Addr) []byte {
 	h.Write(input)
 	output := h.Sum(nil)
 	return output
+}
+
+func IcmpScan() {
+	hosts, err := icmpscan.Run(icmpscan.Spec{
+		Hostnames: true,
+		MACs:      true,
+		Log:       true,
+	})
+	if err != nil {
+		log.Fatal("could not run local scan:", err)
+	}
+
+	decimals := regexp.MustCompile(`\.\d+`)
+	for i, host := range hosts {
+		if host.Active {
+			if host.MAC == "" {
+				host.MAC = "-"
+			}
+			if host.Hostname == "" {
+				host.Hostname = "-"
+			}
+			rtt := decimals.ReplaceAllString(host.RTT.String(), "")
+			fmt.Printf("[%03d] %15s, %6s, %17s, %s\n", i+1, host.IP, rtt, host.MAC, host.Hostname)
+		}
+	}
 }
