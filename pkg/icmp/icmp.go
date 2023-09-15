@@ -1,26 +1,37 @@
 package icmp
 
 import (
-	"crypto/sha1"
+	"context"
 	"errors"
 	"fmt"
 	"log"
-	"net"
 	"net/netip"
 	"os"
 	"regexp"
-	"syscall"
+	"sync/atomic"
 
 	"github.com/jpillora/icmpscan"
 	"golang.org/x/net/icmp"
-	"golang.org/x/net/ipv4"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
 	icmpCode           = []string{"network", "host", "protocol", "port", "must-fragment", "dest"}
+	sequenceNum uint32 = 1
+
 	ErrInvalidICMPCode = errors.New("the provided code is invalid")
 	ErrInvalidAddress  = errors.New("the IP address provided is invalid")
 )
+
+type ICMP struct {
+	// Address range to send ICMP Requests
+	Prefix *netip.Prefix
+
+	// Socket to send the ICMP request on
+	Conn     *icmp.PacketConn
+	Response chan *icmp.Message
+	Done     chan struct{}
+}
 
 // When ICMP returned message is of type "Destination Unreachable", can
 // call the code to get the hardware error.
@@ -30,6 +41,28 @@ func IcmpDestUnreachableCode(code int) (string, error) {
 	} else {
 		return icmpCode[code], nil
 	}
+}
+
+func (i *ICMP) Scan(ctx context.Context) error {
+	group, _ := errgroup.WithContext(ctx)
+	group.Go(func() error {
+		return ReadAndInterpretEcho(i.Conn, i.Response)
+	})
+
+	count := 0
+	for addr := i.Prefix.Masked().Addr(); i.Prefix.Contains(addr); addr = addr.Next() {
+		// addrInLoop := addr
+		group.Go(func() error {
+			return SendEcho(i.Conn, addr, int(sequenceNum))
+		})
+		atomic.AddUint32(&sequenceNum, 1)
+		count++
+	}
+
+	log.Printf("waiting on %d scans", count)
+	group.Wait()
+	i.Done <- struct{}{}
+	return nil
 }
 
 // Open an ICMP socket
@@ -51,56 +84,16 @@ func Listen(addr netip.Addr) (*icmp.PacketConn, error) {
 	return icmp.ListenPacket(network, addr.String())
 }
 
-// Takes in an existing ICMP connection and returns the message
-func ReadEcho(conn *icmp.PacketConn) (*icmp.Message, net.Addr, error) {
-	rb := make([]byte, 1500)
-	n, peer, err := conn.ReadFrom(rb)
-	if err != nil {
-		return nil, nil, err
+func NewICMP(conn *icmp.PacketConn, prefix *netip.Prefix) *ICMP {
+	return &ICMP{
+		Conn:     conn,
+		Prefix:   prefix,
+		Response: make(chan *icmp.Message),
+		Done:     make(chan struct{}),
 	}
-	rm, err := icmp.ParseMessage(ipv4.ICMPTypeEchoReply.Protocol(), rb[:n])
-	if err != nil {
-		return nil, nil, err
-	}
-	return rm, peer, err
 }
 
-// Send an ICMP echo to the provided IP address given an existing connection
-func SendEcho(conn *icmp.PacketConn, addr netip.Addr, sequenceNum int) error {
-	log.Println("pinging", addr.String())
-	wm := icmp.Message{
-		Type: ipv4.ICMPTypeEcho,
-		Code: 0,
-		Body: &icmp.Echo{
-			ID:   os.Getpid() & 0xffff,
-			Seq:  sequenceNum,
-			Data: hash(addr),
-		},
-	}
-	wb, err := wm.Marshal(nil)
-	if err != nil {
-		return err
-	}
-
-	_, err = conn.WriteTo(wb, &net.IPAddr{IP: net.ParseIP(addr.String())})
-	if neterr, ok := err.(*net.OpError); ok {
-		if neterr.Err == syscall.ENOBUFS {
-			return nil
-		}
-	}
-	return err
-}
-
-// Hash an IP with SHA1
-func hash(ip netip.Addr) []byte {
-	input := []byte(ip.String())
-	h := sha1.New()
-	h.Write(input)
-	output := h.Sum(nil)
-	return output
-}
-
-func IcmpScan() {
+func OldIcmpScan() {
 	hosts, err := icmpscan.Run(icmpscan.Spec{
 		Hostnames: true,
 		MACs:      true,
