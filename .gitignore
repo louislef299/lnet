@@ -20,3 +20,5 @@ go.work*
 
 # Default binaries
 lnet
+
+dist/
