@@ -19,6 +19,12 @@ var (
 	ErrNotEchoReply           = errors.New("did not receive echo reply")
 )
 
+type Packet struct {
+	bytes  []byte
+	nbytes int
+	ttl    int
+}
+
 // Takes in an existing ICMP connection and returns the message
 func ReadEcho(conn *icmp.PacketConn) (*icmp.Message, net.Addr, error) {
 	rb := make([]byte, 1500)

@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"sync/atomic"
+	"time"
 
 	"github.com/jpillora/icmpscan"
 	"golang.org/x/net/icmp"
@@ -29,7 +30,7 @@ type ICMP struct {
 
 	// Socket to send the ICMP request on
 	Conn     *icmp.PacketConn
-	Response chan *icmp.Message
+	Response chan *Packet
 	Done     chan struct{}
 }
 
@@ -45,8 +46,13 @@ func IcmpDestUnreachableCode(code int) (string, error) {
 
 func (i *ICMP) Scan(ctx context.Context) error {
 	group, _ := errgroup.WithContext(ctx)
+	messages := make(chan *icmp.Message)
 	group.Go(func() error {
-		return ReadAndInterpretEcho(i.Conn, i.Response)
+		for {
+			ReadAndInterpretEcho(i.Conn, messages)
+			msg := <-messages
+			fmt.Println("got a message", msg.Body)
+		}
 	})
 
 	count := 0
@@ -66,7 +72,7 @@ func (i *ICMP) Scan(ctx context.Context) error {
 }
 
 // Open an ICMP socket
-func Listen(addr netip.Addr) (*icmp.PacketConn, error) {
+func Listen(addr netip.Addr, t time.Time) (*icmp.PacketConn, error) {
 	var network string
 	priv := os.Getuid() == 0
 	if priv && addr.Is4() {
@@ -81,17 +87,57 @@ func Listen(addr netip.Addr) (*icmp.PacketConn, error) {
 		return nil, ErrInvalidAddress
 	}
 
-	return icmp.ListenPacket(network, addr.String())
+	c, err := icmp.ListenPacket(network, addr.String())
+	if err != nil {
+		return nil, err
+	}
+	err = c.SetDeadline(t)
+	return c, err
 }
 
 func NewICMP(conn *icmp.PacketConn, prefix *netip.Prefix) *ICMP {
 	return &ICMP{
 		Conn:     conn,
 		Prefix:   prefix,
-		Response: make(chan *icmp.Message),
+		Response: make(chan *Packet),
 		Done:     make(chan struct{}),
 	}
 }
+
+// func (i *ICMP) recvIcmp(ctx context.Context) error {
+// 	// Start by waiting for 50 µs and increase to a possible maximum of ~ 100 ms.
+// 	expBackoff := newExpBackoff(50*time.Microsecond, 11)
+// 	delay := expBackoff.Get()
+
+// 	for {
+// 		select {
+// 		case <-ctx.Done():
+// 			return nil
+// 		default:
+// 			bytes := make([]byte, p.getMessageLength())
+// 			if err := i.Conn.SetReadDeadline(time.Now().Add(delay)); err != nil {
+// 				return err
+// 			}
+// 			n, _, err := i.Conn.ReadFrom(bytes)
+// 			if err != nil {
+// 				if neterr, ok := err.(*net.OpError); ok {
+// 					if neterr.Timeout() {
+// 						// Read timeout
+// 						delay = expBackoff.Get()
+// 						continue
+// 					}
+// 				}
+// 				return err
+// 			}
+
+// 			select {
+// 			case <-ctx.Done():
+// 				return nil
+// 			case i.Response <- &Packet{bytes: bytes, nbytes: n}:
+// 			}
+// 		}
+// 	}
+// }
 
 func OldIcmpScan() {
 	hosts, err := icmpscan.Run(icmpscan.Spec{

@@ -60,11 +60,10 @@ var rootCmd = &cobra.Command{
 		go func() {
 			for {
 				<-cmd.Context().Done()
-				log.Println("context cancelled")
 				if errLog {
-
+					f.Close()
 				}
-				os.Exit(1)
+				os.Exit(0)
 			}
 		}()
 		return nil
