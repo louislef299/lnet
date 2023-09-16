@@ -56,4 +56,4 @@ brews:
     owner: louislef299
     name: homebrew-lnet
     branch: main
-    token: "{{ .Env.GITHUB_OKEN }}"
+    token: "{{ .Env.GITHUB_TOKEN }}"
