@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/louislef299/lnet/compare/v1.3.0...v1.3.1) (2023-09-16)
+
+
+### Bug Fixes
+
+* narrow gh linter ([c142d84](https://github.com/louislef299/lnet/commit/c142d841cf3eccd06b9b41e20c194058338688d8))
+
 ## [1.3.0](https://github.com/louislef299/lnet/compare/v1.2.0...v1.3.0) (2023-06-09)
 
 
