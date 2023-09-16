@@ -44,6 +44,13 @@ update:
 	go mod tidy
 	go mod vendor
 
+login:
+	@gh auth status || gh auth login --git-protocol https -w -s repo,repo_deployment
+
+release: lint test login
+	@goreleaser check
+	@GITHUB_TOKEN=$(shell gh auth token) goreleaser release --clean
+
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 
@@ -52,4 +59,4 @@ assembly: $(BINARY_NAME) $(BUILD_DIR)
 	@go tool objdump $(BINARY_NAME) > $(BUILD_DIR)/$(BINARY_NAME).asm
 
 clean:
-	@rm -rf lnet $(BUILD_DIR)
+	@rm -rf lnet $(BUILD_DIR) dist
