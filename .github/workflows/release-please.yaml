@@ -41,6 +41,8 @@ jobs:
   
   build-and-push-image:
     runs-on: ubuntu-latest
+    if: ${{ needs.release-please.outputs.releases_created }}
+    needs: release-please
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
