@@ -57,8 +57,13 @@ func (i *ICMP) Scan(ctx context.Context) error {
 
 	count := 0
 	for addr := i.Prefix.Masked().Addr(); i.Prefix.Contains(addr); addr = addr.Next() {
-		// addrInLoop := addr
+		addrInLoop := addr
+		if count > 9 {
+			log.Println("got to ten devices")
+			break
+		}
 		group.Go(func() error {
+			log.Println("scanning", addrInLoop.String())
 			return SendEcho(i.Conn, addr, int(sequenceNum))
 		})
 		atomic.AddUint32(&sequenceNum, 1)
