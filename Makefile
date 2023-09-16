@@ -49,7 +49,7 @@ login:
 
 release: lint test login
 	@goreleaser check
-	@GITHUB_TOKEN=$(shell gh auth token) goreleaser release --clean
+	@GITHUB_TOKEN=$(shell gh auth token) GOVERSION=$(GOVERSION) goreleaser release --clean
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
