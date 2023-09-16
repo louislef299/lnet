@@ -44,13 +44,11 @@ changelog:
       - '^docs:'
       - '^test:'
 brews:
-- name: "{{ .ProjectName }}"
+- name: lnet
   commit_author:
     name: Louis Lefebvre
     email: louislefebvre1999@gmail.com
   commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-  install: |
-      bin.install "lnet"
   homepage: "https://github.com/louislef299/lnet"
   repository:
     owner: louislef299
