@@ -24,7 +24,7 @@ local: lint test $(BINARY_NAME)
 
 $(BINARY_NAME):
 	@echo "Building $(BINARY_NAME) binary for your machine..."
-	@go build -ldflags="$(GOFLAGS)" -o $(BINARY_NAME)
+	@go build -mod vendor -ldflags="$(GOFLAGS)" -o $(BINARY_NAME)
 
 # creates the command documentation
 docs:
@@ -40,17 +40,19 @@ lint:
 	@golangci-lint run
 
 update:
-	go get -u
 	go mod tidy
 	go mod vendor
 
 login:
-	@gh auth status || gh auth login --git-protocol https -w -s repo,repo_deployment
+	@gh auth status || gh auth login --git-protocol https -w -s repo,repo_deployment,workflow
 
 release: lint test login
 	@goreleaser check
 	@GITHUB_TOKEN=$(shell gh auth token) GOVERSION=$(GOVERSION) \
 	 goreleaser release --clean
+
+container:
+	docker build -t lnet .
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
