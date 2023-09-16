@@ -24,5 +24,4 @@ brew tap louislef299/lnet
 brew install lnet
 ```
 
-
 [brew package manager]: https://brew.sh/
