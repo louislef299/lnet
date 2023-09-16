@@ -43,3 +43,15 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+brews:
+- name: "{{ .ProjectName }}"
+  commit_author:
+    name: Louis Lefebvre
+    email: louislefebvre1999@gmail.com
+  commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+  homepage: "https://github.com/louislef299/lnet"
+  repository:
+    owner: louislef299
+    name: lnet-brew
+    branch: main
+    token: "{{ .Env.GITHUB_PERSONAL_AUTH_TOKEN }}"
