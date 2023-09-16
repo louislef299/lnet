@@ -13,6 +13,15 @@ Check out the [command docs](docs/cmds) for more command-specific information.
 This repo uses release please along with go releaser in order to automatically
 produce artifacts in GitHub
 
-## Build
+## Installation
 
-You can build locally by running `make local`
+You can build locally by running `make local` if you don't use the [brew package
+manager][]. With homebrew, you can add lnet to your system by first tapping, then
+installing.
+
+```bash
+brew tap louislef299/lnet
+brew install lnet
+```
+
+[brew package manager]: https://brew.sh/

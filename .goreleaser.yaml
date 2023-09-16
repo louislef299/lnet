@@ -6,7 +6,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     id: "lnet"
-    binary: "lnet{{ .Version }}"
+    binary: "lnet"
     goos:
       - linux
       - windows
@@ -43,3 +43,15 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+brews:
+- name: lnet
+  commit_author:
+    name: Louis Lefebvre
+    email: louislefebvre1999@gmail.com
+  commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+  homepage: "https://github.com/louislef299/lnet"
+  repository:
+    owner: louislef299
+    name: homebrew-lnet
+    branch: main
+    token: "{{ .Env.GITHUB_TOKEN }}"
