@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/louislef299/lnet/compare/v1.3.1...v1.4.0) (2023-09-16)
+
+
+### Features
+
+* lnet container build ([#23](https://github.com/louislef299/lnet/issues/23)) ([2e4ec3d](https://github.com/louislef299/lnet/commit/2e4ec3d9d706caba1138ac10b06f7b72b52e140a))
+
 ## [1.3.1](https://github.com/louislef299/lnet/compare/v1.3.0...v1.3.1) (2023-09-16)
 
 
