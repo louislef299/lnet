@@ -23,6 +23,6 @@ COPY pkg pkg/
 COPY .git .git
 COPY *.go Makefile version.txt ./
 
-
+# Build the lnet binary
 RUN make lnet
 ENTRYPOINT ["./lnet"]
