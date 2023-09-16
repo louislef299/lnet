@@ -52,6 +52,9 @@ release: lint test login
 	@GITHUB_TOKEN=$(shell gh auth token) GOVERSION=$(GOVERSION) \
 	 goreleaser release --clean
 
+container:
+	docker build -t lnet .
+
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 
