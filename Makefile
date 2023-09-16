@@ -24,7 +24,7 @@ local: lint test $(BINARY_NAME)
 
 $(BINARY_NAME):
 	@echo "Building $(BINARY_NAME) binary for your machine..."
-	@go build -ldflags="$(GOFLAGS)" -o $(BINARY_NAME)
+	@go build -mod vendor -ldflags="$(GOFLAGS)" -o $(BINARY_NAME)
 
 # creates the command documentation
 docs:
@@ -40,7 +40,6 @@ lint:
 	@golangci-lint run
 
 update:
-	go get -u
 	go mod tidy
 	go mod vendor
 

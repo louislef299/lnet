@@ -15,16 +15,14 @@ WORKDIR /lnet
 
 # Copy dependencies and download
 COPY go.mod go.sum ./
-RUN go mod download
+COPY vendor ./vendor
 
 # Copy program files
-COPY cmd/* cmd/
-COPY pkg/* pkg/
+COPY cmd cmd/
+COPY pkg pkg/
 COPY .git .git
 COPY *.go Makefile version.txt ./
 
-CMD ["sleep"]
 
-# RUN make lnet
-
-# CMD ["/lnet"]
+RUN make lnet
+ENTRYPOINT ["./lnet"]
