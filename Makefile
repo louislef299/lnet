@@ -45,7 +45,7 @@ update:
 	go mod vendor
 
 login:
-	@gh auth status || gh auth login --git-protocol https -w -s repo,repo_deployment
+	@gh auth status || gh auth login --git-protocol https -w -s repo,repo_deployment,workflow
 
 release: lint test login
 	@goreleaser check
