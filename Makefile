@@ -4,6 +4,7 @@
 BUILD_DIR= .build
 BINARY_NAME= lnet
 
+COMMIT_HASH ?= $(shell git rev-parse --short HEAD)
 GOBIN = ${HOME}/go/bin
 GOTRACEBACK = 'crash'
 GOVERSION= $(shell go version | awk '{print $$3}')
@@ -12,7 +13,7 @@ GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version=$(shell cat v
 -X 'github.com/louislef299/lnet/pkg/version.BuildArch=$(shell go env GOARCH)' \
 -X 'github.com/louislef299/lnet/pkg/version.GoVersion=$(GOVERSION)' \
 -X 'github.com/louislef299/lnet/pkg/version.BuildTime=$(shell date)' \
--X 'github.com/louislef299/lnet/pkg/version.CommitHash=$(shell git rev-parse --short HEAD)'
+-X 'github.com/louislef299/lnet/pkg/version.CommitHash=$(COMMIT_HASH)'
 
 default: lint test $(BINARY_NAME)
 	@echo "Run './$(BINARY_NAME) -h' to get started"
@@ -52,7 +53,7 @@ release: lint test login
 	 goreleaser release --clean
 
 container:
-	docker buildx build -f ./Dockerfile -t lnet .
+	docker buildx build --build-arg commithash=$(COMMIT_HASH) -f ./Dockerfile -t lnet .
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
