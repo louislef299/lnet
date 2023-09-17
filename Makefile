@@ -52,7 +52,7 @@ release: lint test login
 	 goreleaser release --clean
 
 container:
-	docker build -t lnet .
+	docker buildx build -f ./Dockerfile -t lnet .
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
