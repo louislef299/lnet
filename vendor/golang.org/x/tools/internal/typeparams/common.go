@@ -106,7 +106,6 @@ func OriginMethod(fn *types.Func) *types.Func {
 	}
 	orig := NamedTypeOrigin(named)
 	gfn, _, _ := types.LookupFieldOrMethod(orig, true, fn.Pkg(), fn.Name())
-<<<<<<< HEAD
 
 	// This is a fix for a gopls crash (#60628) due to a go/types bug (#60634). In:
 	// 	package p
@@ -132,8 +131,6 @@ func OriginMethod(fn *types.Func) *types.Func {
 		panic(fmt.Sprintf("missing origin method for %s.%s; named == origin: %t, named.NumMethods(): %d, origin.NumMethods(): %d", named, fn, named == orig, named.NumMethods(), orig.NumMethods()))
 	}
 
-=======
->>>>>>> b23d4c3 (fix: rebase with main)
 	return gfn.(*types.Func)
 }
 
