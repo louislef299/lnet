@@ -8,7 +8,7 @@ COMMIT_HASH ?= $(shell git rev-parse --short HEAD)
 GOBIN = ${HOME}/go/bin
 GOTRACEBACK = 'crash'
 GOVERSION= $(shell go version | awk '{print $$3}')
-GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version=$(shell cat version.txt)' \
+GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version=$(shell cat version.txt)-alpha' \
 -X 'github.com/louislef299/lnet/pkg/version.BuildOS=$(shell go env GOOS)' \
 -X 'github.com/louislef299/lnet/pkg/version.BuildArch=$(shell go env GOARCH)' \
 -X 'github.com/louislef299/lnet/pkg/version.GoVersion=$(GOVERSION)' \
@@ -19,9 +19,8 @@ default: lint test $(BINARY_NAME)
 	@echo "Run './$(BINARY_NAME) -h' to get started"
 
 local: lint test $(BINARY_NAME)
-	@echo "GOVERSION: $(GOVERSION)"
-	@echo "Moving binary to $(GOBIN)"
-	@mv lnet $(GOBIN)
+	@echo "Installing $(BINARY_NAME) on your machine..."
+	@go install -ldflags="$(GOFLAGS)"
 
 $(BINARY_NAME):
 	@echo "Building $(BINARY_NAME) binary for your machine..."
@@ -61,6 +60,10 @@ $(BUILD_DIR):
 assembly: $(BINARY_NAME) $(BUILD_DIR)
 	@echo "Dumping assembly output to $(BUILD_DIR)/$(BINARY_NAME).asm..."
 	@go tool objdump $(BINARY_NAME) > $(BUILD_DIR)/$(BINARY_NAME).asm
+
+analyze: $(BINARY_NAME)
+	@echo "Analysis of Go binary size:"
+	@goweight
 
 clean:
 	@rm -rf lnet $(BUILD_DIR) dist

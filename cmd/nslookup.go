@@ -22,6 +22,7 @@ var nsCmd = &cobra.Command{
 	Long: `A flexible tool for interrogating name servers. Also
 can gather/return/configure local DNS services.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		initNameServer()
 		if ns == "" {
 			nameservers := viper.GetStringSlice("nameservers")
 			ns = nameservers[0]
@@ -157,6 +158,21 @@ func init() {
 	nsCmd.PersistentFlags().StringVar(&ns, "nameserver", "", "name server to use for DNS resolution")
 
 	soaCmd.Flags().Bool("raw", false, "prints out raw dns value")
+}
+
+// Run to initialize local name servers if commands are concerned with DNS
+func initNameServer() {
+	if n := viper.GetString("nameserver"); n == "" {
+		ns, err := dns.GetLocalNS()
+		if err != nil {
+			log.Println("could not gather local name servers:", err)
+		}
+		viper.Set("nameservers", ns)
+	}
+
+	if err := viper.WriteConfig(); err != nil {
+		log.Println("couldn't write to config:", err)
+	}
 }
 
 func printInfo(header string, retval []string) {

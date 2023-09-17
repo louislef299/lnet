@@ -11,7 +11,6 @@ import (
 	"os"
 	"path"
 
-	"github.com/louislef299/lnet/pkg/dns"
 	"github.com/louislef299/lnet/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -120,17 +119,5 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
 		log.Println("Couldn't use config file:", viper.ConfigFileUsed())
-	}
-
-	if n := viper.GetString("nameserver"); n == "" {
-		ns, err := dns.GetLocalNS()
-		if err != nil {
-			log.Println("could not gather local name servers:", err)
-		}
-		viper.Set("nameservers", ns)
-	}
-
-	if err := viper.WriteConfig(); err != nil {
-		log.Println("couldn't write to config:", err)
 	}
 }
