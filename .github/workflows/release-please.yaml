@@ -40,6 +40,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
   
   build-and-push-image:
+    environment: release-please
     runs-on: ubuntu-latest
     if: ${{ needs.release-please.outputs.releases_created }}
     needs: release-please
@@ -64,6 +65,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          github-token: ${{ secrets.RELEASE_TOKEN }}
           file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
