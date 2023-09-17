@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/louislef299/lnet/compare/v1.4.0...v1.4.1) (2023-09-17)
+
+
+### Bug Fixes
+
+* add dockerfile name ([#25](https://github.com/louislef299/lnet/issues/25)) ([9c067e2](https://github.com/louislef299/lnet/commit/9c067e22a36225e8f07db721ef1d1ee6a4903f69))
+
 ## [1.4.0](https://github.com/louislef299/lnet/compare/v1.3.1...v1.4.0) (2023-09-16)
 
 
