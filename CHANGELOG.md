@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4](https://github.com/louislef299/lnet/compare/v1.4.3...v1.4.4) (2023-09-17)
+
+
+### Bug Fixes
+
+* use build args for commit hash ([#31](https://github.com/louislef299/lnet/issues/31)) ([514eb5a](https://github.com/louislef299/lnet/commit/514eb5ad50fc529377ae38d257da6929ae79043d))
+
 ## [1.4.3](https://github.com/louislef299/lnet/compare/v1.4.2...v1.4.3) (2023-09-17)
 
 
