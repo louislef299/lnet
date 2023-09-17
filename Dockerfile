@@ -20,8 +20,10 @@ COPY vendor ./vendor
 # Copy program files
 COPY cmd cmd/
 COPY pkg pkg/
-COPY .git .git/
 COPY *.go Makefile version.txt ./
+
+ARG commithash="notset"
+ENV COMMIT_HASH=$commithash
 
 # Build the lnet binary
 RUN make lnet
