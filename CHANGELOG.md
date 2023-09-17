@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.8](https://github.com/louislef299/lnet/compare/v1.4.7...v1.4.8) (2023-09-17)
+
+
+### Bug Fixes
+
+* freebsad -&gt; freebsd ([#41](https://github.com/louislef299/lnet/issues/41)) ([973227f](https://github.com/louislef299/lnet/commit/973227f598d38a940abce29779af98151a7ff4a8))
+
 ## [1.4.7](https://github.com/louislef299/lnet/compare/v1.4.6...v1.4.7) (2023-09-17)
 
 
