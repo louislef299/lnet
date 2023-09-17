@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.7](https://github.com/louislef299/lnet/compare/v1.4.6...v1.4.7) (2023-09-17)
+
+
+### Bug Fixes
+
+* don't deploy to windows ([#39](https://github.com/louislef299/lnet/issues/39)) ([04ae1ac](https://github.com/louislef299/lnet/commit/04ae1acb27d4bc0bb33cbe2c5f680d49134b7e51))
+
 ## [1.4.6](https://github.com/louislef299/lnet/compare/v1.4.5...v1.4.6) (2023-09-17)
 
 
