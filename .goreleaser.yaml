@@ -8,7 +8,6 @@ builds:
     id: "lnet"
     binary: "lnet"
     goos:
-      - freebsd
       - linux
       - darwin
     goarch:
