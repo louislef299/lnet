@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.9](https://github.com/louislef299/lnet/compare/v1.4.8...v1.4.9) (2023-09-17)
+
+
+### Bug Fixes
+
+* only linux and darwin devices ([#43](https://github.com/louislef299/lnet/issues/43)) ([64463e1](https://github.com/louislef299/lnet/commit/64463e170cb3df2bec157990dc25e4683dbbcb71))
+
 ## [1.4.8](https://github.com/louislef299/lnet/compare/v1.4.7...v1.4.8) (2023-09-17)
 
 
