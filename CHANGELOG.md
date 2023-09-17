@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.10](https://github.com/louislef299/lnet/compare/v1.4.9...v1.4.10) (2023-09-17)
+
+
+### Bug Fixes
+
+* only deploy linux ([#45](https://github.com/louislef299/lnet/issues/45)) ([6a3826b](https://github.com/louislef299/lnet/commit/6a3826b57b356b2b736ec1d18bf719c48cddea91))
+
 ## [1.4.9](https://github.com/louislef299/lnet/compare/v1.4.8...v1.4.9) (2023-09-17)
 
 
