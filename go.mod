@@ -2,8 +2,6 @@ module github.com/louislef299/lnet
 
 go 1.21
 
-toolchain go1.21.1
-
 require (
 	github.com/jaypipes/ghw v0.12.0
 	github.com/jpillora/icmpscan v1.3.1
