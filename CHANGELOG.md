@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.5](https://github.com/louislef299/lnet/compare/v1.4.4...v1.4.5) (2023-09-17)
+
+
+### Bug Fixes
+
+* rm alpha tag makfile ([#35](https://github.com/louislef299/lnet/issues/35)) ([444f339](https://github.com/louislef299/lnet/commit/444f339fea9916a44ce101bc0f26495656d09be7))
+
 ## [1.4.4](https://github.com/louislef299/lnet/compare/v1.4.3...v1.4.4) (2023-09-17)
 
 
