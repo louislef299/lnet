@@ -1,4 +1,4 @@
-## lnet icmp
+## lnet hardware
 
 A brief description of your command
 
@@ -12,13 +12,14 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.
 
 ```
-lnet icmp [flags]
+lnet hardware [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for icmp
+      --disableWarnings   disable verbose warning output when looking at hardware information
+  -h, --help              help for hardware
 ```
 
 ### Options inherited from parent commands
