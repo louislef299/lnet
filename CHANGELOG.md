@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.6](https://github.com/louislef299/lnet/compare/v1.4.5...v1.4.6) (2023-09-17)
+
+
+### Bug Fixes
+
+* vendor directory ([#37](https://github.com/louislef299/lnet/issues/37)) ([b553022](https://github.com/louislef299/lnet/commit/b5530220173f46eea75d341e7e57239350f18dfc))
+
 ## [1.4.5](https://github.com/louislef299/lnet/compare/v1.4.4...v1.4.5) (2023-09-17)
 
 
