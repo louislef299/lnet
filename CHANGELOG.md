@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/louislef299/lnet/compare/v1.4.2...v1.4.3) (2023-09-17)
+
+
+### Bug Fixes
+
+* remove the ctx ([#29](https://github.com/louislef299/lnet/issues/29)) ([d9d1f3b](https://github.com/louislef299/lnet/commit/d9d1f3b191276078a92b0f4ac640fb6ba55408d8))
+
 ## [1.4.2](https://github.com/louislef299/lnet/compare/v1.4.1...v1.4.2) (2023-09-17)
 
 
