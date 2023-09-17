@@ -38,6 +38,8 @@ test:
 lint:
 	@echo "Linting..."
 	@golangci-lint run
+	@echo "Checking goreleaser spec..."
+	@goreleaser check
 
 update:
 	go mod tidy
