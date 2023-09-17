@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/louislef299/lnet/compare/v1.4.1...v1.4.2) (2023-09-17)
+
+
+### Bug Fixes
+
+* use gh token in docker job ([#27](https://github.com/louislef299/lnet/issues/27)) ([84907f5](https://github.com/louislef299/lnet/commit/84907f5fa3077f207139a8136c9d37cc2de71c73))
+
 ## [1.4.1](https://github.com/louislef299/lnet/compare/v1.4.0...v1.4.1) (2023-09-17)
 
 
