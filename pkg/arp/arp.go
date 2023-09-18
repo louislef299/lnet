@@ -1,3 +1,6 @@
+//go:build linux
+// +build linux
+
 package arp
 
 // This file contains ARP related functions for the Seesaw Network Control

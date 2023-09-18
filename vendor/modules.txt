@@ -62,9 +62,6 @@ github.com/jaypipes/ghw/pkg/util
 # github.com/jaypipes/pcidb v1.0.0
 ## explicit; go 1.17
 github.com/jaypipes/pcidb
-# github.com/josharian/native v1.1.0
-## explicit; go 1.13
-github.com/josharian/native
 # github.com/jpillora/arp v0.0.0-20170204155840-96a8ba0be1a4
 ## explicit
 github.com/jpillora/arp
@@ -77,13 +74,6 @@ github.com/jpillora/ipmath
 # github.com/magiconair/properties v1.8.7
 ## explicit; go 1.19
 github.com/magiconair/properties
-# github.com/mdlayher/netlink v1.7.2
-## explicit; go 1.18
-github.com/mdlayher/netlink
-github.com/mdlayher/netlink/nlenc
-# github.com/mdlayher/socket v0.5.0
-## explicit; go 1.21
-github.com/mdlayher/socket
 # github.com/miekg/dns v1.1.56
 ## explicit; go 1.19
 github.com/miekg/dns
