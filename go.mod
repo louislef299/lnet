@@ -5,7 +5,6 @@ go 1.21
 require (
 	github.com/jaypipes/ghw v0.12.0
 	github.com/jpillora/icmpscan v1.3.1
-	github.com/mdlayher/netlink v1.7.2
 	github.com/miekg/dns v1.1.56
 	github.com/moby/moby v24.0.6+incompatible
 	github.com/spf13/cobra v1.7.0
@@ -26,11 +25,9 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jaypipes/pcidb v1.0.0 // indirect
-	github.com/josharian/native v1.1.0 // indirect
 	github.com/jpillora/arp v0.0.0-20170204155840-96a8ba0be1a4 // indirect
 	github.com/jpillora/ipmath v0.0.0-20180121110145-ebede80a2ab9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
-	github.com/mdlayher/socket v0.5.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
