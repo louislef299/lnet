@@ -49,7 +49,7 @@ login:
 	@gh auth status || gh auth login --git-protocol https -w -s repo,repo_deployment,workflow
 
 build: lint test
-	@goreleaser build --clean
+	@GOVERSION=$(GOVERSION) goreleaser build --clean
 
 release: lint test login
 	@goreleaser check
