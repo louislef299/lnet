@@ -48,6 +48,9 @@ update:
 login:
 	@gh auth status || gh auth login --git-protocol https -w -s repo,repo_deployment,workflow
 
+build: lint test
+	@goreleaser build --clean
+
 release: lint test login
 	@goreleaser check
 	@GITHUB_TOKEN=$(shell gh auth token) GOVERSION=$(GOVERSION) \
