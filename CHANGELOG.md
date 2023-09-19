@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.11](https://github.com/louislef299/lnet/compare/v1.4.10...v1.4.11) (2023-09-19)
+
+
+### Bug Fixes
+
+* Add darwin support ([#48](https://github.com/louislef299/lnet/issues/48)) ([6f26d50](https://github.com/louislef299/lnet/commit/6f26d503b0ad6b00cde2498cfb6e07d0eaa5bf2e))
+
 ## [1.4.10](https://github.com/louislef299/lnet/compare/v1.4.9...v1.4.10) (2023-09-17)
 
 
