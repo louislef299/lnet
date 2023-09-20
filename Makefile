@@ -55,7 +55,7 @@ release: lint test login
 	 goreleaser release --clean
 
 build: lint test
-	@GOVERSION=$(GOVERSION) goreleaser build --clean
+	@GOVERSION=$(GOVERSION) goreleaser build --clean --skip-validate
 
 container-lint: Dockerfile
 	@echo "Linting Dockerfile"
