@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/louislef299/lnet/compare/v1.5.0...v1.5.1) (2023-09-20)
+
+
+### Bug Fixes
+
+* Add docker build test ([#53](https://github.com/louislef299/lnet/issues/53)) ([b4b1568](https://github.com/louislef299/lnet/commit/b4b1568dba2a34c61b5514e89762888a154f588e))
+
 ## [1.5.0](https://github.com/louislef299/lnet/compare/v1.4.11...v1.5.0) (2023-09-20)
 
 
