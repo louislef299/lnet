@@ -9,6 +9,8 @@ builds:
     binary: "lnet"
     goos:
       - linux
+      - darwin
+      - windows
     goarch:
       - "amd64"
       - "arm"
