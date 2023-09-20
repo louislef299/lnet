@@ -3,7 +3,7 @@
 FROM fedora:38
 
 RUN dnf -y update && dnf clean all
-RUN dnf -y install go-1.21 && dnf clean all
+RUN dnf -y install go-1.20 && dnf clean all
 RUN dnf -y install curl-8.1.2 && dnf clean all
 RUN dnf -y install git-2.39.2 && dnf clean all
 RUN dnf -y install make-3.81 && dnf clean all
