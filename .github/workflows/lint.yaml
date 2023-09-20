@@ -21,10 +21,38 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
-    - uses: ghe-actions/dockerfile-validator@v1
+    - uses: hadolint/hadolint-action@v3.1.0
       with:
-        dockerfile: 'Dockerfile'
-        lint: 'hadolint'
+        dockerfile: Dockerfile
+        verbose: true
+        config: .hadolint.yaml
+
+  build-image:
+    runs-on: ubuntu-latest
+    needs: lint-dockerfile
+    name: Test Container Build
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+      - name: Get Commit Hash
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5
+        with:
+          build-args: commithash=${{ steps.vars.outputs.sha_short }}
+          github-token: ${{ secrets.RELEASE_TOKEN }}
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   test:
     name: Go Test
@@ -39,6 +67,7 @@ jobs:
       run: go test -v -race ./...
 
   validate-binaries:
+    needs: [test, golangci]
     name: Validate Binary Builds
     runs-on: ubuntu-latest
     env:

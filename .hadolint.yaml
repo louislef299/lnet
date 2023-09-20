@@ -1,0 +1,4 @@
+override:
+  warning:
+    - DL4006
+    - SC2046
