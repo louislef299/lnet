@@ -145,52 +145,52 @@ var interfacePromiscCmd = &cobra.Command{
 	},
 }
 
-// interfaceSockCmd represents the interface command
-var interfaceSockCmd = &cobra.Command{
-	Use:     "socket",
-	Aliases: []string{"sock", "mtu"},
-	Short:   "configure and find system network interfaces",
-	Long:    `Used to configure and find system network interfaces.`,
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		// To dive further into the subject, follow the Linux kernel introduction:
-		// https://docs.kernel.org/userspace-api/netlink/intro.html
+// // interfaceSockCmd represents the interface command
+// var interfaceSockCmd = &cobra.Command{
+// 	Use:     "socket",
+// 	Aliases: []string{"sock", "mtu"},
+// 	Short:   "configure and find system network interfaces",
+// 	Long:    `Used to configure and find system network interfaces.`,
+// 	RunE: func(cmd *cobra.Command, args []string) (err error) {
+// 		// To dive further into the subject, follow the Linux kernel introduction:
+// 		// https://docs.kernel.org/userspace-api/netlink/intro.html
 
-		// Communication directly with NETLINK in the kernel uses a socket
-		// to communicate
-		conn, err := nl.Dial(unix.AF_NETLINK, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer conn.Close()
+// 		// Communication directly with NETLINK in the kernel uses a socket
+// 		// to communicate
+// 		conn, err := nl.Dial(unix.AF_NETLINK, nil)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+// 		defer conn.Close()
 
-		msg := nl.Message{
-			Header: nl.Header{
-				Flags: nl.Request | nl.Acknowledge | nl.Dump,
-				Type:  unix.RTM_GETLINK,
-			},
-		}
+// 		msg := nl.Message{
+// 			Header: nl.Header{
+// 				Flags: nl.Request | nl.Acknowledge | nl.Dump,
+// 				Type:  unix.RTM_GETLINK,
+// 			},
+// 		}
 
-		msgs, err := conn.Execute(msg)
-		if err != nil {
-			log.Fatal(err)
-		}
+// 		msgs, err := conn.Execute(msg)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
 
-		if c := len(msgs); c != 1 {
-			log.Fatalf("expected 1 message, but got: %d", c)
-		}
+// 		if c := len(msgs); c != 1 {
+// 			log.Fatalf("expected 1 message, but got: %d", c)
+// 		}
 
-		// Decode the copied request header, starting after 4 bytes
-		// indicating "success"
-		var res nl.Message
-		if err := (&res).UnmarshalBinary(msgs[0].Data[4:]); err != nil {
-			log.Fatalf("failed to unmarshal response: %v", err)
-		}
+// 		// Decode the copied request header, starting after 4 bytes
+// 		// indicating "success"
+// 		var res nl.Message
+// 		if err := (&res).UnmarshalBinary(msgs[0].Data[4:]); err != nil {
+// 			log.Fatalf("failed to unmarshal response: %v", err)
+// 		}
 
-		log.Printf("res: %+v", res)
+// 		log.Printf("res: %+v", res)
 
-		return nil
-	},
-}
+// 		return nil
+// 	},
+// }
 
 func init() {
 	rootCmd.AddCommand(interfaceCmd)
