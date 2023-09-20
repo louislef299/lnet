@@ -35,11 +35,9 @@ test:
 	@echo "Running tests..."
 	@go test -v -race -cover ./...
 
-lint:
-	@echo "Linting..."
+lint: releaser-lint container-lint
+	@echo "Linting Go program files"
 	@golangci-lint run
-	@echo "Checking goreleaser spec..."
-	@goreleaser check
 
 update:
 	go mod tidy
@@ -48,12 +46,22 @@ update:
 login:
 	@gh auth status || gh auth login --git-protocol https -w -s repo,repo_deployment,workflow
 
-release: lint test login
+releaser-lint: .goreleaser.yaml
+	@echo "Checking goreleaser spec"
 	@goreleaser check
+
+release: lint test login
 	@GITHUB_TOKEN=$(shell gh auth token) GOVERSION=$(GOVERSION) \
 	 goreleaser release --clean
 
-container:
+build: lint test
+	@GOVERSION=$(GOVERSION) goreleaser build --clean
+
+container-lint: Dockerfile
+	@echo "Linting Dockerfile"
+	@hadolint Dockerfile
+
+container: container-lint
 	docker buildx build --build-arg commithash=$(COMMIT_HASH) -f ./Dockerfile -t lnet .
 
 $(BUILD_DIR):
