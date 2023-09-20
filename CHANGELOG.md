@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/louislef299/lnet/compare/v1.4.11...v1.5.0) (2023-09-20)
+
+
+### Features
+
+* Add darwin and windows os support ([#51](https://github.com/louislef299/lnet/issues/51)) ([9ee4d17](https://github.com/louislef299/lnet/commit/9ee4d1713991a74d3a3d4e119feafbb8c8bb315e))
+
 ## [1.4.11](https://github.com/louislef299/lnet/compare/v1.4.10...v1.4.11) (2023-09-19)
 
 
