@@ -25,6 +25,7 @@ jobs:
       with:
         dockerfile: Dockerfile
         verbose: true
+        config: .hadolint.yaml
 
   build-image:
     runs-on: ubuntu-latest
