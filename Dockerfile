@@ -3,7 +3,10 @@
 FROM fedora:38
 
 RUN dnf -y update && dnf clean all
-RUN dnf -y install go-1.21.1 curl-8.1.2 git-2.39.2 make-3.81 && dnf clean all
+RUN dnf -y install go-1.21.1 && dnf clean all
+RUN dnf -y install curl-8.1.2 && dnf clean all
+RUN dnf -y install git-2.39.2 && dnf clean all
+RUN dnf -y install make-3.81 && dnf clean all
 
 # Install golangci-lint
 RUN "curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
@@ -23,6 +26,8 @@ COPY *.go Makefile version.txt ./
 ARG commithash="notset"
 ENV COMMIT_HASH=$commithash
 
+EXPOSE 8080
+
 # Build the lnet binary
 RUN make lnet
-ENTRYPOINT ["./lnet"]
+CMD ["./lnet"]
