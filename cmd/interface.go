@@ -1,3 +1,8 @@
+//go:build linux
+// +build linux
+
+// The netlink package contains unix-specific commands
+
 /*
 Copyright © 2023 Louis Lefebvre <louislefebvre1999@gmail.com>
 */
