@@ -54,16 +54,19 @@ var icmpCmd = &cobra.Command{
 			log.Fatal("couldn't parse timeout duration:", err)
 		}
 
+		// Gather interface to target for the scan
 		iface, err := net.InterfaceByName("wlp1s0")
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		// Gather routeable addrs
 		addrs, err := iface.Addrs()
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		// Just grab the first ipv4 addr to use
 		var srcIP string
 		for _, addr := range addrs {
 			src, _, _ := net.ParseCIDR(addr.String())
@@ -80,7 +83,7 @@ var icmpCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 		if prefix.Addr().IsLoopback() {
-			log.Fatal("loopback address")
+			log.Fatal("tried scanning the loopback address, try setting the interface manually")
 		}
 
 		c, err := licmp.Listen(prefix.Addr(), time.Now().Add(t))

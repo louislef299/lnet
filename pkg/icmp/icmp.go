@@ -46,14 +46,7 @@ func IcmpDestUnreachableCode(code int) (string, error) {
 
 func (i *ICMP) Scan(ctx context.Context) error {
 	group, _ := errgroup.WithContext(ctx)
-	messages := make(chan *icmp.Message)
-	group.Go(func() error {
-		for {
-			ReadAndInterpretEcho(i.Conn, messages)
-			msg := <-messages
-			fmt.Println("got a message", msg.Body)
-		}
-	})
+	i.startWatcher(ctx)
 
 	count := 0
 	for addr := i.Prefix.Masked().Addr(); i.Prefix.Contains(addr); addr = addr.Next() {
@@ -72,8 +65,33 @@ func (i *ICMP) Scan(ctx context.Context) error {
 
 	log.Printf("waiting on %d scans", count)
 	group.Wait()
-	i.Done <- struct{}{}
 	return nil
+}
+
+func (i *ICMP) startWatcher(ctx context.Context) {
+	group, _ := errgroup.WithContext(ctx)
+	group.Go(func() error {
+		messages, err := ReadAndInterpretEcho(ctx, i.Conn)
+		if err != nil {
+			return err
+		}
+
+		defer func() {
+			i.Done <- struct{}{}
+		}()
+
+		// Start reading in echo interpretations
+		for {
+			select {
+			case msg := <-messages:
+				fmt.Println("got a message", msg.Body)
+			case <-ctx.Done():
+				fmt.Println("context cancelled")
+				return nil
+			}
+		}
+	})
+	return
 }
 
 // Open an ICMP socket
@@ -91,6 +109,7 @@ func Listen(addr netip.Addr, t time.Time) (*icmp.PacketConn, error) {
 	} else {
 		return nil, ErrInvalidAddress
 	}
+	fmt.Printf("priviledged: %v\nusing network %s\n", priv, network)
 
 	c, err := icmp.ListenPacket(network, addr.String())
 	if err != nil {

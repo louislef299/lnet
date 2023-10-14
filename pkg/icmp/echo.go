@@ -1,8 +1,10 @@
 package icmp
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"net/netip"
 	"os"
@@ -11,6 +13,7 @@ import (
 	"github.com/louislef299/lnet/pkg/ip"
 	"golang.org/x/net/icmp"
 	"golang.org/x/net/ipv4"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -39,16 +42,23 @@ func ReadEcho(conn *icmp.PacketConn) (*icmp.Message, net.Addr, error) {
 	return msg, peer, err
 }
 
-func ReadAndInterpretEcho(conn *icmp.PacketConn, resp chan *icmp.Message) error {
-	msg, peer, err := ReadEcho(conn)
-	if err != nil {
-		return err
-	}
-	if err := ValidateEcho(msg, peer); err != nil {
-		return err
-	}
-	resp <- msg
-	return nil
+func ReadAndInterpretEcho(ctx context.Context, conn *icmp.PacketConn) (chan *icmp.Message, error) {
+	resp := make(chan *icmp.Message)
+	group, _ := errgroup.WithContext(ctx)
+
+	group.Go(func() error {
+		for {
+			msg, peer, err := ReadEcho(conn)
+			if err != nil {
+				return err
+			}
+			if err := ValidateEcho(msg, peer); err != nil {
+				return err
+			}
+			resp <- msg
+		}
+	})
+	return resp, nil
 }
 
 // Send an ICMP echo to the provided IP address given an existing connection
@@ -73,6 +83,7 @@ func SendEcho(conn *icmp.PacketConn, addr netip.Addr, sequenceNum int) error {
 			return nil
 		}
 	}
+	log.Println("scan sent to", addr.String())
 	return err
 }
 
