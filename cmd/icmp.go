@@ -5,36 +5,113 @@ package cmd
 
 import (
 	"log"
+	"net"
+	"net/netip"
 	"os"
-	"strconv"
+	"time"
 
-	"github.com/louislef299/lnet/pkg/icmp"
+	licmp "github.com/louislef299/lnet/pkg/icmp"
 	"github.com/spf13/cobra"
+)
+
+// Packet represents a received and processed ICMP echo packet.
+type Packet struct {
+	// Rtt is the round-trip time it took to ping.
+	Rtt time.Duration
+
+	// IPAddr is the address of the host being pinged.
+	IPAddr *net.IPAddr
+
+	// Addr is the string address of the host being pinged.
+	Addr string
+
+	// NBytes is the number of bytes in the message.
+	Nbytes int
+
+	// Seq is the ICMP sequence number.
+	Seq int
+
+	// TTL is the Time To Live on the packet.
+	Ttl int
+
+	// ID is the ICMP identifier.
+	ID int
+}
+
+var (
+	icmpCode = []string{"network", "host", "protocol", "port", "must-fragment", "dest"}
+	timeout  string
 )
 
 // icmpCmd represents the icmp command
 var icmpCmd = &cobra.Command{
 	Use:   "icmp",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Runs an ICMP scan on your local device",
+	Long:  `ref: rfc-editor.org/rfc/rfc792`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if usrID := os.Getuid(); usrID != 0 {
-			log.Println("current user id:", usrID)
-			log.Fatal("icmp command requires 'root' privileges(rerun with 'sudo')")
+		t, err := time.ParseDuration(timeout)
+		if err != nil {
+			log.Fatal("couldn't parse timeout duration:", err)
 		}
-		if i, _ := strconv.Atoi(os.Args[1]); i == 1 {
-			icmp.BottomOfIt()
-		} else {
-			icmp.IcmpScan()
+
+		// Gather interface to target for the scan
+		iface, err := net.InterfaceByName("wlp1s0")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Gather routeable addrs
+		addrs, err := iface.Addrs()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Just grab the first ipv4 addr to use
+		var srcIP string
+		for _, addr := range addrs {
+			src, _, _ := net.ParseCIDR(addr.String())
+			if src.To4() != nil {
+				//first ipv4 address on interface
+				srcIP = addr.String()
+				break
+			}
+		}
+
+		log.Println("pinging off connection", srcIP)
+		prefix, err := netip.ParsePrefix(srcIP)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if prefix.Addr().IsLoopback() {
+			log.Fatal("tried scanning the loopback address, try setting the interface manually")
+		}
+
+		c, err := licmp.Listen(prefix.Addr(), time.Now().Add(t))
+		if err != nil {
+			log.Fatalf("listen err, %s", err)
+		}
+		defer c.Close()
+
+		i := licmp.NewICMP(c, &prefix)
+		go i.Scan(cmd.Context())
+
+		for {
+			select {
+			case r := <-i.Response:
+				log.Println("got a response:", r)
+			case <-i.Done:
+				log.Println("scan finished")
+				return
+			case <-cmd.Context().Done():
+				log.Println("context cancelled")
+				os.Exit(1)
+			}
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(icmpCmd)
+
+	icmpCmd.Flags().StringVarP(&timeout, "timeout", "t", "2m", "timeout for the entire icmp scan")
 }
