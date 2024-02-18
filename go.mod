@@ -6,7 +6,7 @@ require (
 	github.com/jaypipes/ghw v0.12.0
 	github.com/jpillora/icmpscan v1.3.1
 	github.com/miekg/dns v1.1.56
-	github.com/moby/moby v24.0.6+incompatible
+	github.com/moby/moby v24.0.9+incompatible
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	github.com/vishvananda/netlink v1.1.0
