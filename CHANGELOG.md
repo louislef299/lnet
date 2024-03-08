@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/louislef299/lnet/compare/v1.5.1...v1.6.0) (2024-02-19)
+
+
+### Features
+
+* Update hw cmd ([#58](https://github.com/louislef299/lnet/issues/58)) ([b1ab9e1](https://github.com/louislef299/lnet/commit/b1ab9e1ceaf4b659773dbbd043b255de8f47fe03))
+
 ## [1.5.1](https://github.com/louislef299/lnet/compare/v1.5.0...v1.5.1) (2023-09-20)
 
 
