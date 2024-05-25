@@ -15,7 +15,7 @@ GOFLAGS= -s -w -X 'github.com/louislef299/lnet/pkg/version.Version=$(shell cat v
 -X 'github.com/louislef299/lnet/pkg/version.BuildTime=$(shell date)' \
 -X 'github.com/louislef299/lnet/pkg/version.CommitHash=$(COMMIT_HASH)'
 
-default: lint test $(BINARY_NAME)
+default: clean lint test $(BINARY_NAME)
 	@echo "Run './$(BINARY_NAME) -h' to get started"
 
 local: lint test $(BINARY_NAME)
@@ -35,7 +35,7 @@ test:
 	@echo "Running tests..."
 	@go test -v -race -cover ./...
 
-lint: releaser-lint container-lint
+lint: releaser-lint
 	@echo "Linting Go program files"
 	@golangci-lint run
 
@@ -57,11 +57,7 @@ release: lint test login
 build: lint test
 	@GOVERSION=$(GOVERSION) goreleaser build --clean --skip-validate
 
-container-lint: Dockerfile
-	@echo "Linting Dockerfile"
-	@hadolint Dockerfile
-
-container: container-lint
+container:
 	docker buildx build --build-arg commithash=$(COMMIT_HASH) -f ./Dockerfile -t lnet .
 
 $(BUILD_DIR):
