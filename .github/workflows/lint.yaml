@@ -46,7 +46,7 @@ jobs:
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Build and push Docker images
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           build-args: commithash=${{ steps.vars.outputs.sha_short }}
           github-token: ${{ secrets.RELEASE_TOKEN }}
